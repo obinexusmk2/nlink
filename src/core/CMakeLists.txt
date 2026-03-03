@@ -1,11 +1,8 @@
 # Updated with tactical modules
 # Copyright © 2025 OBINexus Computing
 
-# Include tactical modules first to ensure dependencies are available
-add_subdirectory(tactic)
-add_subdirectory(type)
-add_subdirectory(tokenizer)
-add_subdirectory(parser)
+# Component subdirectories are auto-discovered below.
+# Keep this file declarative and avoid hardcoding renamed/missing paths.
 
 # CMakeLists.txt for NexusLink core components
 # This file coordinates the build of all core components
@@ -126,7 +123,7 @@ target_include_directories(nlink_main_objects PRIVATE
 )
 
 # Set position independent code for shared library compatibility
-set_property(TARGET nlink_main_objects PROPERTIES
+set_property(TARGET nlink_main_objects PROPERTY
     POSITION_INDEPENDENT_CODE ON
 )
 

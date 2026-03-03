@@ -35,11 +35,11 @@ target_include_directories(nlink_commands_objects PRIVATE
 )
 
 # Set position independent code for shared library compatibility
-set_property(TARGET nlink_cli_objects PROPERTIES
+set_property(TARGET nlink_cli_objects PROPERTY
   POSITION_INDEPENDENT_CODE ON
 )
 
-set_property(TARGET nlink_commands_objects PROPERTIES
+set_property(TARGET nlink_commands_objects PROPERTY
   POSITION_INDEPENDENT_CODE ON
 )
 
