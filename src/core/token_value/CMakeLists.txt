@@ -29,15 +29,15 @@ nlink_build_component(
 
 # Define include directories
 target_include_directories(nlink_${MODULE_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../type
-    ${CMAKE_CURRENT_SOURCE_DIR}/../tactic
+    ${CMAKE_CURRENT_SOURCE_DIR}/../token_type
+    ${CMAKE_CURRENT_SOURCE_DIR}/../tatit
     ${CMAKE_CURRENT_SOURCE_DIR}/../tokenizer
 )
 
 # Define dependencies
 target_link_libraries(nlink_${MODULE_NAME} PRIVATE
-    nlink_type
-    nlink_tactic
+    nlink_token_type
+    nlink_tatit
     nlink_tokenizer
 )
 

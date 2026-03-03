@@ -1,11 +1,8 @@
 # Updated with tactical modules
 # Copyright © 2025 OBINexus Computing
 
-# Include tactical modules first to ensure dependencies are available
-add_subdirectory(tactic)
-add_subdirectory(type)
-add_subdirectory(tokenizer)
-add_subdirectory(parser)
+# Component subdirectories are auto-discovered below.
+# Keep this file declarative and avoid hardcoding renamed/missing paths.
 
 # CMakeLists.txt for NexusLink core components
 # This file coordinates the build of all core components
@@ -23,10 +20,13 @@ file(GLOB CORE_COMPONENTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*")
 set(CORE_COMPONENT_DIRS "")
 
 foreach(COMPONENT ${CORE_COMPONENTS})
-  if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT})
+  set(COMPONENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT}")
+  if(IS_DIRECTORY "${COMPONENT_DIR}"
+     AND EXISTS "${COMPONENT_DIR}/CMakeLists.txt"
+     AND COMPONENT MATCHES "^[a-z][a-z0-9_]*$")
     # Add to list of component directories
     list(APPEND CORE_COMPONENT_DIRS ${COMPONENT})
-    
+
     # Register component with the build system
     if(NOT DEFINED NLINK_COMPONENT_SYSTEM_INCLUDED)
       # If component system isn't loaded yet, just add to our local list
@@ -126,7 +126,7 @@ target_include_directories(nlink_main_objects PRIVATE
 )
 
 # Set position independent code for shared library compatibility
-set_property(TARGET nlink_main_objects PROPERTIES
+set_property(TARGET nlink_main_objects PROPERTY
     POSITION_INDEPENDENT_CODE ON
 )
 

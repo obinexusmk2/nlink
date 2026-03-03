@@ -46,7 +46,10 @@ file(GLOB CORE_COMPONENTS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/core" "${CMA
 set(VALID_CORE_COMPONENTS "")
 
 foreach(COMPONENT ${CORE_COMPONENTS})
-  if(IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/core/${COMPONENT}")
+  set(COMPONENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/core/${COMPONENT}")
+  if(IS_DIRECTORY "${COMPONENT_DIR}"
+     AND EXISTS "${COMPONENT_DIR}/CMakeLists.txt"
+     AND COMPONENT MATCHES "^[a-z][a-z0-9_]*$")
     list(APPEND VALID_CORE_COMPONENTS ${COMPONENT})
     nlink_register_component(${COMPONENT})
     # Create component object directory
