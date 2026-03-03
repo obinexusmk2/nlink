@@ -20,10 +20,13 @@ file(GLOB CORE_COMPONENTS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*")
 set(CORE_COMPONENT_DIRS "")
 
 foreach(COMPONENT ${CORE_COMPONENTS})
-  if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT})
+  set(COMPONENT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${COMPONENT}")
+  if(IS_DIRECTORY "${COMPONENT_DIR}"
+     AND EXISTS "${COMPONENT_DIR}/CMakeLists.txt"
+     AND COMPONENT MATCHES "^[a-z][a-z0-9_]*$")
     # Add to list of component directories
     list(APPEND CORE_COMPONENT_DIRS ${COMPONENT})
-    
+
     # Register component with the build system
     if(NOT DEFINED NLINK_COMPONENT_SYSTEM_INCLUDED)
       # If component system isn't loaded yet, just add to our local list
