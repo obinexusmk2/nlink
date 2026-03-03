@@ -164,7 +164,7 @@ function(nlink_define_global_targets)
       COMMAND ${CMAKE_COMMAND} -E echo "Validating include paths..."
       COMMAND ${Python3_EXECUTABLE} ${NLINK_PROJECT_ROOT}/scripts/standardize_nlink_includes.py
         --project-root ${NLINK_PROJECT_ROOT}
-        --validate
+        --dry-run
       COMMENT "Validating include paths"
     )
   endif()
@@ -209,3 +209,20 @@ endfunction()
 
 # Set timestamp for log files
 string(TIMESTAMP NLINK_TIMESTAMP "%Y%m%d_%H%M%S")
+
+
+# Define the main NexusLink executable
+function(nlink_define_main_executable)
+  cmake_parse_arguments(EXE "" "NAME;VERSION" "SOURCES;DEPENDENCIES" ${ARGN})
+
+  if(NOT EXE_NAME)
+    message(FATAL_ERROR "nlink_define_main_executable requires NAME")
+  endif()
+
+  add_executable(${EXE_NAME} ${EXE_SOURCES})
+  target_include_directories(${EXE_NAME} PRIVATE ${NLINK_INCLUDE_DIR} ${NLINK_SRC_DIR})
+
+  if(EXE_DEPENDENCIES)
+    target_link_libraries(${EXE_NAME} PRIVATE ${EXE_DEPENDENCIES})
+  endif()
+endfunction()

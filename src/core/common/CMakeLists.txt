@@ -43,7 +43,7 @@ target_include_directories(nlink_${COMPONENT_NAME}_objects PRIVATE
 )
 
 # Set position independent code for shared library compatibility
-set_property(TARGET nlink_${COMPONENT_NAME}_objects PROPERTIES
+set_property(TARGET nlink_${COMPONENT_NAME}_objects PROPERTY
   POSITION_INDEPENDENT_CODE ON
 )
 
@@ -83,17 +83,6 @@ endif()
 # Register this static library
 set_property(GLOBAL APPEND PROPERTY NLINK_STATIC_LIBRARIES nlink_${COMPONENT_NAME}_static)
 
-# Extract object files to component object directory
-get_property(OBJ_DIR GLOBAL PROPERTY NLINK_OBJ_DIR)
-add_custom_command(
-  TARGET nlink_${COMPONENT_NAME}_objects
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${OBJ_DIR}/core/${COMPONENT_NAME}
-  COMMAND ${CMAKE_COMMAND} -E echo "Copying ${COMPONENT_NAME} object files to ${OBJ_DIR}/core/${COMPONENT_NAME}"
-  COMMAND ${CMAKE_COMMAND} -E $<$<BOOL:$<TARGET_PROPERTY:nlink_${COMPONENT_NAME}_objects,SOURCES>>:copy_directory>
-          $<TARGET_PROPERTY:nlink_${COMPONENT_NAME}_objects,OBJECT_DIR> ${OBJ_DIR}/core/${COMPONENT_NAME}
-  COMMENT "Extracting ${COMPONENT_NAME} object files"
-)
 
 # Component target for independent building
 add_custom_target(${COMPONENT_NAME}
