@@ -97,7 +97,11 @@ nlink_install_executable(TARGET nlink)
 
 # Testing setup
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests/CMakeLists.txt")
+    add_subdirectory(tests)
+  else()
+    message(WARNING "BUILD_TESTING is ON, but tests/CMakeLists.txt was not found; skipping tests directory")
+  endif()
 endif()
 
 # Create debug/release targets

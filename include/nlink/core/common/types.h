@@ -23,6 +23,27 @@
      /* Forward declarations for structures to avoid circular dependencies */
      typedef struct NexusContext NexusContext;
      typedef struct NexusComponent NexusComponent;
+
+ 
+     /**
+      * @brief Symbol types for NexusLink symbols
+      */
+     typedef enum NexusSymbolType
+     {
+         NEXUS_SYMBOL_FUNCTION,  /**< Function symbol */
+         NEXUS_SYMBOL_VARIABLE,  /**< Variable symbol */
+         NEXUS_SYMBOL_TYPE,      /**< Type symbol */
+         NEXUS_SYMBOL_CONSTANT,  /**< Constant symbol */
+         NEXUS_SYMBOL_MACRO,     /**< Macro symbol */
+         NEXUS_SYMBOL_STRUCT,    /**< Structure symbol */
+         NEXUS_SYMBOL_ENUM,      /**< Enumeration symbol */
+         NEXUS_SYMBOL_UNION,     /**< Union symbol */
+         NEXUS_SYMBOL_UNKNOWN,   /**< Unknown symbol type */
+         /* Legacy names for backward compatibility */
+         NEXUS_SYMBOL_DATA = NEXUS_SYMBOL_VARIABLE, /**< Data symbol (alias for VARIABLE) */
+         NEXUS_SYMBOL_CONST = NEXUS_SYMBOL_CONSTANT /**< Const symbol (alias for CONSTANT) */
+     } NexusSymbolType;
+
      
      /**
       * @brief Symbol structure for NexusLink
@@ -105,27 +126,7 @@
          NEXUS_FLAG_AUTO_LOAD = (1 << 0),   /**< Automatically load components */
          NEXUS_FLAG_AUTO_UNLOAD = (1 << 1), /**< Automatically unload unused components */
          NEXUS_FLAG_STRICT_DEPS = (1 << 2)  /**< Enforce strict dependency checking */
-     } NexusFlags;
- 
-     /**
-      * @brief Symbol types for NexusLink symbols
-      */
-     typedef enum NexusSymbolType
-     {
-         NEXUS_SYMBOL_FUNCTION,  /**< Function symbol */
-         NEXUS_SYMBOL_VARIABLE,  /**< Variable symbol */
-         NEXUS_SYMBOL_TYPE,      /**< Type symbol */
-         NEXUS_SYMBOL_CONSTANT,  /**< Constant symbol */
-         NEXUS_SYMBOL_MACRO,     /**< Macro symbol */
-         NEXUS_SYMBOL_STRUCT,    /**< Structure symbol */
-         NEXUS_SYMBOL_ENUM,      /**< Enumeration symbol */
-         NEXUS_SYMBOL_UNION,     /**< Union symbol */
-         NEXUS_SYMBOL_UNKNOWN,   /**< Unknown symbol type */
-         /* Legacy names for backward compatibility */
-         NEXUS_SYMBOL_DATA = NEXUS_SYMBOL_VARIABLE, /**< Data symbol (alias for VARIABLE) */
-         NEXUS_SYMBOL_CONST = NEXUS_SYMBOL_CONSTANT /**< Const symbol (alias for CONSTANT) */
-     } NexusSymbolType;
- 
+     } NexusFlags; 
      /* Callback type definitions */
      typedef void (*NexusLogCallback)(NexusLogLevel level, const char *format, va_list args);
      typedef bool (*NexusComponentInit)(NexusContext *ctx);
