@@ -94,6 +94,15 @@ LIB_DBG := $(BUILD_DBG_LIB)/nlink.a
 # =============================================================================
 all: debug release
 
+
+.SECONDEXPANSION:
+
+# Ensure object subdirectories exist even if another rule overrides compile recipes
+$(BUILD_REL_OBJ)/%.o $(BUILD_DBG_OBJ)/%.o: | $$(@D)/
+
+%/:
+	$(call MKDIR_P,$@)
+
 # =============================================================================
 # RELEASE  →  ./bin/nlink[.exe]                              [DEFAULT]
 # =============================================================================
