@@ -1,247 +1,133 @@
-# =============================================================================
-# OBINexus NexusLink - Cross-Platform Build System
-# Toolchain : MinGW-w64 / GCC  (Windows)  or  gcc  (Linux / WSL)
-# Primary   : ./bin/nlink.exe   (Windows)  or  ./bin/nlink  (Linux)
-# =============================================================================
+# NexusLink (NLink) Makefile
+# Author: Nnamdi Michael Okpala
 
-# ── Directory layout  (defined FIRST so TARGET below can reference them) ─────
-SRC_DIR := src
-BIN_DIR := bin
+# Directory structure
+PROJECT_ROOT := $(shell pwd)
+SRC_DIR := $(PROJECT_ROOT)/src
+INCLUDE_DIR := $(PROJECT_ROOT)/include
+BUILD_DIR := $(PROJECT_ROOT)/build
+CMAKE_BUILD_DIR := $(BUILD_DIR)/cmake
 
-BUILD_REL_OBJ := build/release/obj
-BUILD_REL_LIB := build/release/lib
+# Default options
+CMAKE_OPTIONS := -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
 
-BUILD_DBG_OBJ := build/debug/obj
-BUILD_DBG_LIB := build/debug/lib
-BUILD_DBG_BIN := build/debug/bin
+# Default target
+.PHONY: all
+all: build
 
-# ── Windows path helper (/ -> \) ──────────────────────────────────────────────
-winpath = $(subst /,\,$1)
+# Create build directories
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# ── Platform detection ────────────────────────────────────────────────────────
-ifeq ($(OS),Windows_NT)
-  SHELL        := cmd.exe
-  .SHELLFLAGS  := /c
-  MKDIR_P       = if not exist "$(call winpath,$1)" md "$(call winpath,$1)"
-  RM_RF         = if exist "$(call winpath,$1)" rd /s /q "$(call winpath,$1)"
-  EXE_SUFFIX   := .exe
-  FEATURES_CMD  = @for %%f in ($(FEATURES)) do @echo   %%f
-  POC_COPY      = @copy scripts\python_bridge.py poc\ >nul 2>&1 || echo   (python_bridge.py not found)
-  POC_RUN       = python poc\python_bridge.py
-else
-  SHELL        := /bin/bash
-  .SHELLFLAGS  := -c
-  MKDIR_P       = mkdir -p "$1"
-  RM_RF         = rm -rf "$1"
-  EXE_SUFFIX   :=
-  FEATURES_CMD  = @for f in $(FEATURES); do echo "  $$f"; done
-  POC_COPY      = @cp scripts/python_bridge.py poc/ 2>/dev/null || echo "  (python_bridge.py not found)"
-  POC_RUN       = python3 poc/python_bridge.py
-endif
+$(CMAKE_BUILD_DIR): | $(BUILD_DIR)
+	mkdir -p $(CMAKE_BUILD_DIR)
 
-# ── Primary targets (deferred = avoids empty-BIN_DIR expansion at parse time) ─
-TARGET     = $(BIN_DIR)/nlink$(EXE_SUFFIX)
-DBG_TARGET = $(BUILD_DBG_BIN)/nlink$(EXE_SUFFIX)
+# Configure with CMake
+.PHONY: configure
+configure: | $(CMAKE_BUILD_DIR)
+	cd $(CMAKE_BUILD_DIR) && cmake $(CMAKE_OPTIONS) $(PROJECT_ROOT)
 
-# ── Toolchain ─────────────────────────────────────────────────────────────────
-CC  := gcc
-CXX := g++
-AR  := ar
+# Build the project
+.PHONY: build
+build: configure
+	cd $(CMAKE_BUILD_DIR) && cmake --build .
 
-# ── Compiler flags ────────────────────────────────────────────────────────────
-# -iquote./include : project shim headers (fnmatch.h etc.) win over system ones
-# -I./include      : all nlink/core/... public headers (absolute form)
-# -I./src/core     : source-local headers (tokenizer.h, parser.h, etc.)
-# No -fPIC on Windows (not required for PE/COFF targets)
-CFLAGS_COMMON   := -Wall -Wextra -Wpedantic \
-                   -iquote./include -I./include -I./src/core \
-                   -std=c11
-CXXFLAGS_COMMON := -Wall -Wextra -Wpedantic \
-                   -iquote./include -I./include -I./src/core \
-                   -std=c++17
+# Build in debug mode
+.PHONY: debug
+debug:
+	$(MAKE) build CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON"
 
-CFLAGS_DEBUG   := $(CFLAGS_COMMON) -g -O0 -DDEBUG
-CFLAGS_RELEASE := $(CFLAGS_COMMON) -O2 -DNDEBUG -ffunction-sections -fdata-sections
+# Build in release mode
+.PHONY: release
+release:
+	$(MAKE) build CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON"
 
-CRYPTO_FLAGS := -DSHANNON_ENTROPY_ENABLED=1
+# Run tests
+.PHONY: test
+test: build
+	cd $(CMAKE_BUILD_DIR) && ctest --output-on-failure
 
-# Environment target overrides
-dev:  CFLAGS_RELEASE += -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1
-prod: CFLAGS_RELEASE += -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
+# Run all tests with custom target
+.PHONY: run-tests
+run-tests: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target run_all_tests
 
-# ── Feature modules ───────────────────────────────────────────────────────────
-FEATURES := semverx parser schema minimizer etps symbols pipeline cli tatit mpsystem spsystem
-
-# ── Source collection ─────────────────────────────────────────────────────────
-CORE_SOURCES   := $(foreach f,$(FEATURES),$(wildcard $(SRC_DIR)/core/$(f)/*.c))
-CRYPTO_SOURCES := \
-    src/core/crypto/shannon_entropy.c \
-    src/core/crypto/env_config.c
-CLI_MAIN       := $(SRC_DIR)/cli/main.c
-CLI_SOURCES    := $(filter-out $(CLI_MAIN),$(wildcard $(SRC_DIR)/cli/*.c))
-ALL_SOURCES    := $(CORE_SOURCES) $(CRYPTO_SOURCES) $(CLI_SOURCES) $(CLI_MAIN)
-
-# ── Object file lists ─────────────────────────────────────────────────────────
-OBJECTS_REL := $(patsubst $(SRC_DIR)/%.c,$(BUILD_REL_OBJ)/%.o,$(ALL_SOURCES))
-OBJECTS_DBG := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DBG_OBJ)/%.o,$(ALL_SOURCES))
-
-# ── Static libraries ──────────────────────────────────────────────────────────
-LIB_REL := $(BUILD_REL_LIB)/nlink.a
-LIB_DBG := $(BUILD_DBG_LIB)/nlink.a
-
-# ── Phony targets ─────────────────────────────────────────────────────────────
-.PHONY: all debug release clean cmake-reset features help dev prod \
-        etps-test etps-config-test qa-test qa-validate \
-        poc poc-setup spec spec-run
-
-.DEFAULT_GOAL := release
-
-# =============================================================================
-# ALL
-# =============================================================================
-all: debug release
-
-# =============================================================================
-# RELEASE  →  ./bin/nlink[.exe]                              [DEFAULT]
-# =============================================================================
-release: $(TARGET)
-
-$(TARGET): $(BUILD_REL_OBJ)/cli/main.o $(LIB_REL)
-	$(call MKDIR_P,$(BIN_DIR))
-	$(CC) $(CFLAGS_RELEASE) -o $@ $(BUILD_REL_OBJ)/cli/main.o \
-	    -L$(BUILD_REL_LIB) -lnlink -Wl,--gc-sections
-	@echo [nlink] Release complete: $@
-
-$(BUILD_REL_OBJ)/%.o: $(SRC_DIR)/%.c
-	$(call MKDIR_P,$(dir $@))
-	$(CC) $(CFLAGS_RELEASE) $(CRYPTO_FLAGS) -c $< -o $@
-
-$(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/cli/main.o,$(OBJECTS_REL))
-	$(call MKDIR_P,$(BUILD_REL_LIB))
-	$(AR) rcs $@ $^
-
-# =============================================================================
-# DEBUG  →  build/debug/bin/nlink[.exe]
-# =============================================================================
-debug: $(DBG_TARGET)
-
-$(DBG_TARGET): $(BUILD_DBG_OBJ)/cli/main.o $(LIB_DBG)
-	$(call MKDIR_P,$(BUILD_DBG_BIN))
-	$(CC) $(CFLAGS_DEBUG) -o $@ $(BUILD_DBG_OBJ)/cli/main.o \
-	    -L$(BUILD_DBG_LIB) -lnlink
-	@echo [nlink] Debug complete: $@
-
-$(BUILD_DBG_OBJ)/%.o: $(SRC_DIR)/%.c
-	$(call MKDIR_P,$(dir $@))
-	$(CC) $(CFLAGS_DEBUG) $(CRYPTO_FLAGS) -c $< -o $@
-
-$(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/cli/main.o,$(OBJECTS_DBG))
-	$(call MKDIR_P,$(BUILD_DBG_LIB))
-	$(AR) rcs $@ $^
-
-# =============================================================================
-# QA / TESTING
-# =============================================================================
-qa-test: debug
-	@echo [nlink] Running QA Soundness Tests...
-	@echo   TP: True Positive  tests
-	@echo   TN: True Negative  tests
-	@echo   FP: False Positive tests  (MUST BE ZERO)
-	@echo   FN: False Negative tests
-	$(DBG_TARGET) --qa-validate
-
-etps-test: debug
-	@echo [nlink] Testing ETPS Telemetry...
-	$(DBG_TARGET) --etps-test --json
-
-etps-config-test: $(TARGET)
-	@echo [nlink] Testing ETPS with configuration...
-	$(TARGET) --etps-test --config config/nlink.conf --json
-
-qa-validate: poc spec-run
-	@echo [nlink] QA validation complete.
-
-# =============================================================================
-# POC  (Python bridge)
-# =============================================================================
-poc-setup:
-	@echo [nlink] Setting up POC environment...
-	$(call MKDIR_P,poc)
-	$(POC_COPY)
-	@echo [nlink] POC environment ready.
-
-poc: poc-setup
-	@echo [nlink] Running POC integration...
-	$(POC_RUN)
-
-# =============================================================================
-# SPEC / DOCUMENTATION FRAMEWORK
-# =============================================================================
-spec:
-	@echo [nlink] Building QA specification framework...
-	$(MAKE) -C spec all
-
-spec-run: spec
-	@echo [nlink] Executing QA specifications...
-	$(MAKE) -C spec run
-
-# =============================================================================
-# FEATURE LISTING
-# =============================================================================
-features:
-	@echo NexusLink Features:
-	$(FEATURES_CMD)
-
-# =============================================================================
-# CLEAN
-# =============================================================================
+# Clean build artifacts
+.PHONY: clean
 clean:
-	$(call RM_RF,build)
-	$(call RM_RF,bin)
-	@echo [nlink] Clean complete.
+	rm -rf $(BUILD_DIR)
 
-# cmake-reset: wipe CMake cache — required when switching Windows <-> WSL
-cmake-reset:
-ifeq ($(OS),Windows_NT)
-	@if exist build\CMakeCache.txt del /q build\CMakeCache.txt
-	@if exist build\CMakeFiles     rd /s /q build\CMakeFiles
-	@if exist CMakeCache.txt       del /q CMakeCache.txt
-	@if exist CMakeFiles           rd /s /q CMakeFiles
-else
-	@rm -f build/CMakeCache.txt CMakeCache.txt
-	@rm -rf build/CMakeFiles CMakeFiles
-endif
-	@echo [nlink] CMake cache cleared.
-	@echo [nlink] Windows: cmake -S . -B build -G "MinGW Makefiles"
-	@echo [nlink] Linux:   cmake -S . -B build -G "Unix Makefiles"
+# Install the library and headers
+.PHONY: install
+install: build
+	cd $(CMAKE_BUILD_DIR) && cmake --install .
 
-# =============================================================================
-# HELP
-# =============================================================================
+# Generate docs
+.PHONY: docs
+docs: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target docs
+
+# Validate include paths
+.PHONY: validate-includes
+validate-includes: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target validate_includes
+
+# Fix include paths
+.PHONY: fix-includes
+fix-includes: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target fix_includes
+
+# Create packages
+.PHONY: package
+package: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target package
+
+# Create source packages
+.PHONY: package-source
+package-source: configure
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target package_source
+
+# Complete development cycle
+.PHONY: dev-cycle
+dev-cycle: build
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target dev_cycle
+
+# Check code style with clang-format
+.PHONY: check-style
+check-style:
+	find $(SRC_DIR) $(INCLUDE_DIR) -name "*.c" -o -name "*.h" | xargs clang-format -i
+
+# Build with coverage instrumentation
+.PHONY: coverage
+coverage:
+	$(MAKE) build CMAKE_OPTIONS="-DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON -DENABLE_COVERAGE=ON"
+	cd $(CMAKE_BUILD_DIR) && cmake --build . --target coverage
+
+# Show help
+.PHONY: help
 help:
-	@echo
-	@echo  OBINexus NexusLink -- Cross-Platform Build System
-	@echo  ==================================================
-	@echo  Targets:
-	@echo    release          Build optimised ./bin/nlink[.exe]   [DEFAULT]
-	@echo    debug            Build debug     build/debug/bin/nlink[.exe]
-	@echo    all              Build both release and debug
-	@echo    clean            Remove build/ and bin/ trees
-	@echo    cmake-reset      Wipe CMakeCache (Windows-to-WSL or vice versa)
-	@echo    features         List all feature modules
-	@echo    etps-test        Run ETPS telemetry smoke-test (debug)
-	@echo    etps-config-test Run ETPS test with config file (release)
-	@echo    qa-test          Run TP/TN/FP/FN QA validation (debug)
-	@echo    qa-validate      Run POC + spec validation suite
-	@echo    poc              Run Python POC integration bridge
-	@echo    spec             Build QA specification framework
-	@echo    spec-run         Execute QA specifications
-	@echo
-	@echo  Environment variants:
-	@echo    make dev         -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1
-	@echo    make prod        -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
-	@echo
-	@echo  Requirements: gcc, g++, ar on PATH
-	@echo    Windows: MinGW-w64  (C:/MinGW/bin or MSYS2)
-	@echo    Linux:   sudo apt install build-essential
-	@echo
+	@echo "NexusLink Makefile targets:"
+	@echo "  all              - Build the project (default)"
+	@echo "  configure        - Configure the build system"
+	@echo "  build            - Build the project"
+	@echo "  debug            - Build in debug mode"
+	@echo "  release          - Build in release mode"
+	@echo "  test             - Run tests"
+	@echo "  run-tests        - Run all tests (run_all_tests target)"
+	@echo "  clean            - Remove all build artifacts"
+	@echo "  install          - Install the library and headers"
+	@echo "  docs             - Generate documentation"
+	@echo "  validate-includes - Validate include paths"
+	@echo "  fix-includes     - Fix include paths"
+	@echo "  package          - Create binary packages"
+	@echo "  package-source   - Create source packages"
+	@echo "  dev-cycle        - Run the complete development cycle"
+	@echo "  check-style      - Check code style with clang-format"
+	@echo "  coverage         - Build with coverage instrumentation"
+
+# Components
+.PHONY: components
+components:
+	@for comp in $(shell ls $(SRC_DIR)/core); do \
+		echo "$$comp"; \
+	done
