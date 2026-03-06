@@ -11,13 +11,12 @@
  #ifndef NLINK_H
  #define NLINK_H
  
-#include "common/result.h"
-#include "common/types.h"
-#include "common/nexus_core.h"
-#include "common/command.h"
-#include "minimizer/nexus_minimizer.h"
-#include "versioning/nexus_version.h"
-#include "common/command.h"
+#include "nlink/core/common/result.h"
+#include "nlink/core/common/types.h"
+#include "nlink/core/common/nexus_core.h"
+#include "nlink/core/common/command.h"
+#include "nlink/core/minimizer/nexus_minimizer.h"
+#include "nlink/core/versioning/nexus_version.h"
 
 
 

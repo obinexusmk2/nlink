@@ -13,7 +13,7 @@
 #include <string.h>
 #include <strings.h>
 #include <ctype.h>
-#include <regex.h>
+#include "nlink/core/pattern/regex_compat.h"
  
  /**
   * @brief Helper function to determine if a pattern is a glob pattern

@@ -5,8 +5,17 @@
 # Primary   : ./bin/nlink.exe
 # =============================================================================
 
+ifeq ($(OS),Windows_NT)
 SHELL       := cmd.exe
 .SHELLFLAGS := /c
+MKDIR_P     = @if not exist "$(call winpath,$1)" md "$(call winpath,$1)"
+RM_RF       = @if exist "$(call winpath,$1)" rd /s /q "$(call winpath,$1)"
+else
+SHELL       := /bin/bash
+.SHELLFLAGS := -lc
+MKDIR_P     = @mkdir -p "$1"
+RM_RF       = @rm -rf "$1"
+endif
 
 # ── Toolchain ─────────────────────────────────────────────────────────────────
 CC  := gcc
@@ -48,8 +57,9 @@ CORE_SOURCES   := $(foreach f,$(FEATURES),$(wildcard $(SRC_DIR)/core/$(f)/*.c))
 CRYPTO_SOURCES := \
     src/core/crypto/shannon_entropy.c \
     src/core/crypto/env_config.c
-CLI_SOURCES    := $(wildcard $(SRC_DIR)/cli/*.c)
-ALL_SOURCES    := $(CORE_SOURCES) $(CRYPTO_SOURCES) $(CLI_SOURCES) $(SRC_DIR)/main.c
+CLI_MAIN       := $(SRC_DIR)/cli/main.c
+CLI_SOURCES    := $(filter-out $(CLI_MAIN),$(wildcard $(SRC_DIR)/cli/*.c))
+ALL_SOURCES    := $(CORE_SOURCES) $(CRYPTO_SOURCES) $(CLI_SOURCES) $(CLI_MAIN)
 
 # ── Object file lists ─────────────────────────────────────────────────────────
 OBJECTS_REL := $(patsubst $(SRC_DIR)/%.c,$(BUILD_REL_OBJ)/%.o,$(ALL_SOURCES))
@@ -79,20 +89,20 @@ all: debug release
 # =============================================================================
 release: $(TARGET)
 
-$(TARGET): $(BUILD_REL_OBJ)/main.o $(LIB_REL)
-	@if not exist "$(call winpath,$(BIN_DIR))" md "$(call winpath,$(BIN_DIR))"
-	$(CC) $(CFLAGS_RELEASE) -o $@ $(BUILD_REL_OBJ)/main.o \
+$(TARGET): $(BUILD_REL_OBJ)/cli/main.o $(LIB_REL)
+	$(call MKDIR_P,$(BIN_DIR))
+	$(CC) $(CFLAGS_RELEASE) -o $@ $(BUILD_REL_OBJ)/cli/main.o \
 	    -L$(BUILD_REL_LIB) -lnlink -Wl,--gc-sections
 	@echo [nlink] Release complete: $@
 
 # Release objects
 $(BUILD_REL_OBJ)/%.o: $(SRC_DIR)/%.c
-	@if not exist "$(call winpath,$(dir $@))" md "$(call winpath,$(dir $@))"
+	$(call MKDIR_P,$(dir $@))
 	$(CC) $(CFLAGS_RELEASE) $(CRYPTO_FLAGS) -c $< -o $@
 
 # Release static library
-$(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/main.o,$(OBJECTS_REL))
-	@if not exist "$(call winpath,$(BUILD_REL_LIB))" md "$(call winpath,$(BUILD_REL_LIB))"
+$(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/cli/main.o,$(OBJECTS_REL))
+	$(call MKDIR_P,$(BUILD_REL_LIB))
 	$(AR) rcs $@ $^
 
 # =============================================================================
@@ -100,20 +110,20 @@ $(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/main.o,$(OBJECTS_REL))
 # =============================================================================
 debug: $(BUILD_DBG_BIN)/nlink.exe
 
-$(BUILD_DBG_BIN)/nlink.exe: $(BUILD_DBG_OBJ)/main.o $(LIB_DBG)
-	@if not exist "$(call winpath,$(BUILD_DBG_BIN))" md "$(call winpath,$(BUILD_DBG_BIN))"
-	$(CC) $(CFLAGS_DEBUG) -o $@ $(BUILD_DBG_OBJ)/main.o \
+$(BUILD_DBG_BIN)/nlink.exe: $(BUILD_DBG_OBJ)/cli/main.o $(LIB_DBG)
+	$(call MKDIR_P,$(BUILD_DBG_BIN))
+	$(CC) $(CFLAGS_DEBUG) -o $@ $(BUILD_DBG_OBJ)/cli/main.o \
 	    -L$(BUILD_DBG_LIB) -lnlink
 	@echo [nlink] Debug complete: $@
 
 # Debug objects
 $(BUILD_DBG_OBJ)/%.o: $(SRC_DIR)/%.c
-	@if not exist "$(call winpath,$(dir $@))" md "$(call winpath,$(dir $@))"
+	$(call MKDIR_P,$(dir $@))
 	$(CC) $(CFLAGS_DEBUG) $(CRYPTO_FLAGS) -c $< -o $@
 
 # Debug static library
-$(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/main.o,$(OBJECTS_DBG))
-	@if not exist "$(call winpath,$(BUILD_DBG_LIB))" md "$(call winpath,$(BUILD_DBG_LIB))"
+$(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/cli/main.o,$(OBJECTS_DBG))
+	$(call MKDIR_P,$(BUILD_DBG_LIB))
 	$(AR) rcs $@ $^
 
 # =============================================================================
@@ -148,7 +158,7 @@ qa-validate: poc spec-run
 # =============================================================================
 poc-setup:
 	@echo [nlink] Setting up POC environment...
-	@if not exist poc md poc
+	$(call MKDIR_P,poc)
 	@copy scripts\python_bridge.py poc\ >nul 2>&1 || echo   (python_bridge.py not found)
 	@echo [nlink] POC environment ready.
 
@@ -178,8 +188,8 @@ features:
 # CLEAN
 # =============================================================================
 clean:
-	@if exist build rd /s /q build
-	@if exist bin   rd /s /q bin
+	$(call RM_RF,build)
+	$(call RM_RF,bin)
 	@echo [nlink] Clean complete.
 
 # =============================================================================

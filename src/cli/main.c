@@ -6,8 +6,8 @@
  */
 
  #include "nlink/cli/cli.h"
- #include "nlink/core/nlink.h"
- #include <stdio.h>
+#include "nlink/core/versioning/nlink.h"
+  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
  
