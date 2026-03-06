@@ -1,16 +1,18 @@
 # Minimizer module CMakeLists.txt
 
 # Create nexus_minimizer library
+# Source files are flat in this directory (no automaton/ or ast/ sub-dirs)
 add_library(nexus_minimizer
     minimizer.c
-    automaton/nexus_automaton.c
+    nexus_automaton.c
 )
 
 # Create okpala_minimizer library
+# Note: actual filename on disk is okpala_automaton_minimzer.c (preserved as-is)
 add_library(okpala_minimizer
-    ast/okpala_ast.c
-    automaton/okpala_automaton.c
-    automaton/okpala_automaton_minimizer.c
+    okpala_ast.c
+    okpala_automaton.c
+    okpala_automaton_minimzer.c
 )
 
 # Add dependencies

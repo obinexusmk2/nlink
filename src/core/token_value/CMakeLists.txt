@@ -4,18 +4,17 @@
 # Get the directory name for the current module
 get_filename_component(MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-# Define source files
+# Define source files (only files that exist in this directory)
+# token.c / token_type.c live in the token_type component, not here
 set(MODULE_SOURCES
-    token.c
-    token_type.c
     nlink_token_system.c
+    token_value.c
 )
 
 # Define header files
 set(MODULE_HEADERS
-    token.h
-    token_type.h
     nlink_token_system.h
+    token_value.h
 )
 
 # Add library target
