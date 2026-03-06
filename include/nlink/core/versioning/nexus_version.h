@@ -62,11 +62,6 @@ extern NexusVersion* nexus_version_parse(const char* version_str);
 /**
  * @brief Compare two versions
  * 
-NexusVersion* nexus_version_parse(const char* version_str);
-
-/**
- * @brief Compare two versions
- * 
  * @param v1 First version
  * @param v2 Second version
  * @return int -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2

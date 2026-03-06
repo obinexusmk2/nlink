@@ -23,43 +23,7 @@
  #ifdef __cplusplus
  extern "C" {
  #endif
- 
- /**
-  * @brief Symbol structure
-  * 
-  * This structure represents a symbol in the NexusLink system.
-  */
- struct NexusSymbol {
-     char* name;              /**< Symbol name */
-     void* address;           /**< Memory address of the symbol */
-     NexusSymbolType type;    /**< Symbol type */
-     char* component_id;      /**< ID of the component that provides this symbol */
-     int ref_count;           /**< Reference count for usage tracking */
- };
- 
- /**
-  * @brief Symbol table structure
-  * 
-  * This structure represents a table of symbols in the NexusLink system.
-  */
- struct NexusSymbolTable {
-     NexusSymbol* symbols;    /**< Array of symbols */
-     size_t capacity;         /**< Capacity of the symbols array */
-     size_t size;             /**< Number of symbols in the table */
- };
- 
- /**
-  * @brief Symbol registry structure
-  * 
-  * This structure represents the three-tier symbol registry in the NexusLink system.
-  */
- struct NexusSymbolRegistry {
-     NexusSymbolTable global;     /**< Global symbols available throughout application lifecycle */
-     NexusSymbolTable imported;   /**< Symbols imported by currently loaded components */
-     NexusSymbolTable exported;   /**< Symbols exported by currently loaded components */
- };
- 
- /**
+/**
   * @brief Initialize a symbol registry
   * 
   * @return NexusSymbolRegistry* A newly allocated symbol registry, or NULL on failure

@@ -141,7 +141,6 @@ NexusResult nlink_command_router_register_with_params(
      NlinkCommandParams** params);
 
  /**
- /**
   * @brief Register a command with parameter mapping
   * @param router Command router
   * @param pattern Command pattern
