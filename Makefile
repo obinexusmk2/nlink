@@ -4,54 +4,7 @@
 # Primary   : ./bin/nlink.exe   (Windows)  or  ./bin/nlink  (Linux)
 # =============================================================================
 
-# ── Platform detection ────────────────────────────────────────────────────────
-ifeq ($(OS),Windows_NT)
-  SHELL       := cmd.exe
-  .SHELLFLAGS := /c
-  # Windows: use cmd.exe built-ins; md creates parent dirs automatically
-  MKDIR_P      = if not exist "$(call winpath,$1)" md "$(call winpath,$1)"
-  RM_RF        = if exist "$(call winpath,$1)" rd /s /q "$(call winpath,$1)"
-  TARGET       := $(BIN_DIR)/nlink.exe
-  DBG_TARGET   := $(BUILD_DBG_BIN)/nlink.exe
-  FEATURES_CMD  = @for %%f in ($(FEATURES)) do @echo   %%f
-  POC_COPY      = @copy scripts\python_bridge.py poc\ >nul 2>&1 || echo   (python_bridge.py not found)
-  POC_RUN       = python poc\python_bridge.py
-else
-  SHELL       := /bin/bash
-  .SHELLFLAGS := -c
-  MKDIR_P      = mkdir -p "$1"
-  RM_RF        = rm -rf "$1"
-  TARGET       := $(BIN_DIR)/nlink
-  DBG_TARGET   := $(BUILD_DBG_BIN)/nlink
-  FEATURES_CMD  = @for f in $(FEATURES); do echo "  $$f"; done
-  POC_COPY      = @cp scripts/python_bridge.py poc/ 2>/dev/null || echo "  (python_bridge.py not found)"
-  POC_RUN       = python3 poc/python_bridge.py
-endif
-
-# ── Windows path helper (/ -> \) ──────────────────────────────────────────────
-winpath = $(subst /,\,$1)
-
-# ── Toolchain ─────────────────────────────────────────────────────────────────
-CC  := gcc
-CXX := g++
-AR  := ar
-
-# ── Compiler flags ────────────────────────────────────────────────────────────
-# -iquote./include: shim headers (fnmatch.h, etc.) take priority over system ones
-# -fPIC is intentionally omitted on Windows (not needed for PE targets)
-CFLAGS_COMMON   := -Wall -Wextra -Wpedantic -iquote./include -I./include -std=c11
-CXXFLAGS_COMMON := -Wall -Wextra -Wpedantic -iquote./include -I./include -std=c++17
-
-CFLAGS_DEBUG   := $(CFLAGS_COMMON) -g -O0 -DDEBUG
-CFLAGS_RELEASE := $(CFLAGS_COMMON) -O2 -DNDEBUG -ffunction-sections -fdata-sections
-
-CRYPTO_FLAGS := -DSHANNON_ENTROPY_ENABLED=1
-
-# Environment target overrides
-dev:  CFLAGS_RELEASE += -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1
-prod: CFLAGS_RELEASE += -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
-
-# ── Directory layout ──────────────────────────────────────────────────────────
+# ── Directory layout  (defined FIRST so TARGET below can reference them) ─────
 SRC_DIR := src
 BIN_DIR := bin
 
@@ -61,6 +14,60 @@ BUILD_REL_LIB := build/release/lib
 BUILD_DBG_OBJ := build/debug/obj
 BUILD_DBG_LIB := build/debug/lib
 BUILD_DBG_BIN := build/debug/bin
+
+# ── Windows path helper (/ -> \) ──────────────────────────────────────────────
+winpath = $(subst /,\,$1)
+
+# ── Platform detection ────────────────────────────────────────────────────────
+ifeq ($(OS),Windows_NT)
+  SHELL        := cmd.exe
+  .SHELLFLAGS  := /c
+  MKDIR_P       = if not exist "$(call winpath,$1)" md "$(call winpath,$1)"
+  RM_RF         = if exist "$(call winpath,$1)" rd /s /q "$(call winpath,$1)"
+  EXE_SUFFIX   := .exe
+  FEATURES_CMD  = @for %%f in ($(FEATURES)) do @echo   %%f
+  POC_COPY      = @copy scripts\python_bridge.py poc\ >nul 2>&1 || echo   (python_bridge.py not found)
+  POC_RUN       = python poc\python_bridge.py
+else
+  SHELL        := /bin/bash
+  .SHELLFLAGS  := -c
+  MKDIR_P       = mkdir -p "$1"
+  RM_RF         = rm -rf "$1"
+  EXE_SUFFIX   :=
+  FEATURES_CMD  = @for f in $(FEATURES); do echo "  $$f"; done
+  POC_COPY      = @cp scripts/python_bridge.py poc/ 2>/dev/null || echo "  (python_bridge.py not found)"
+  POC_RUN       = python3 poc/python_bridge.py
+endif
+
+# ── Primary targets (deferred = avoids empty-BIN_DIR expansion at parse time) ─
+TARGET     = $(BIN_DIR)/nlink$(EXE_SUFFIX)
+DBG_TARGET = $(BUILD_DBG_BIN)/nlink$(EXE_SUFFIX)
+
+# ── Toolchain ─────────────────────────────────────────────────────────────────
+CC  := gcc
+CXX := g++
+AR  := ar
+
+# ── Compiler flags ────────────────────────────────────────────────────────────
+# -iquote./include : project shim headers (fnmatch.h etc.) win over system ones
+# -I./include      : all nlink/core/... public headers (absolute form)
+# -I./src/core     : source-local headers (tokenizer.h, parser.h, etc.)
+# No -fPIC on Windows (not required for PE/COFF targets)
+CFLAGS_COMMON   := -Wall -Wextra -Wpedantic \
+                   -iquote./include -I./include -I./src/core \
+                   -std=c11
+CXXFLAGS_COMMON := -Wall -Wextra -Wpedantic \
+                   -iquote./include -I./include -I./src/core \
+                   -std=c++17
+
+CFLAGS_DEBUG   := $(CFLAGS_COMMON) -g -O0 -DDEBUG
+CFLAGS_RELEASE := $(CFLAGS_COMMON) -O2 -DNDEBUG -ffunction-sections -fdata-sections
+
+CRYPTO_FLAGS := -DSHANNON_ENTROPY_ENABLED=1
+
+# Environment target overrides
+dev:  CFLAGS_RELEASE += -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1
+prod: CFLAGS_RELEASE += -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
 
 # ── Feature modules ───────────────────────────────────────────────────────────
 FEATURES := semverx parser schema minimizer etps symbols pipeline cli tatit mpsystem spsystem
@@ -105,12 +112,10 @@ $(TARGET): $(BUILD_REL_OBJ)/cli/main.o $(LIB_REL)
 	    -L$(BUILD_REL_LIB) -lnlink -Wl,--gc-sections
 	@echo [nlink] Release complete: $@
 
-# Release objects
 $(BUILD_REL_OBJ)/%.o: $(SRC_DIR)/%.c
 	$(call MKDIR_P,$(dir $@))
 	$(CC) $(CFLAGS_RELEASE) $(CRYPTO_FLAGS) -c $< -o $@
 
-# Release static library
 $(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/cli/main.o,$(OBJECTS_REL))
 	$(call MKDIR_P,$(BUILD_REL_LIB))
 	$(AR) rcs $@ $^
@@ -126,12 +131,10 @@ $(DBG_TARGET): $(BUILD_DBG_OBJ)/cli/main.o $(LIB_DBG)
 	    -L$(BUILD_DBG_LIB) -lnlink
 	@echo [nlink] Debug complete: $@
 
-# Debug objects
 $(BUILD_DBG_OBJ)/%.o: $(SRC_DIR)/%.c
 	$(call MKDIR_P,$(dir $@))
 	$(CC) $(CFLAGS_DEBUG) $(CRYPTO_FLAGS) -c $< -o $@
 
-# Debug static library
 $(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/cli/main.o,$(OBJECTS_DBG))
 	$(call MKDIR_P,$(BUILD_DBG_LIB))
 	$(AR) rcs $@ $^
@@ -139,7 +142,6 @@ $(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/cli/main.o,$(OBJECTS_DBG))
 # =============================================================================
 # QA / TESTING
 # =============================================================================
-
 qa-test: debug
 	@echo [nlink] Running QA Soundness Tests...
 	@echo   TP: True Positive  tests
@@ -198,9 +200,7 @@ clean:
 	$(call RM_RF,bin)
 	@echo [nlink] Clean complete.
 
-# cmake-reset: wipe the CMake cache so it can be regenerated from scratch.
-# Run this when switching between Windows-native cmake and WSL cmake, since
-# each stores different absolute paths in CMakeCache.txt.
+# cmake-reset: wipe CMake cache — required when switching Windows <-> WSL
 cmake-reset:
 ifeq ($(OS),Windows_NT)
 	@if exist build\CMakeCache.txt del /q build\CMakeCache.txt
@@ -242,6 +242,6 @@ help:
 	@echo    make prod        -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
 	@echo
 	@echo  Requirements: gcc, g++, ar on PATH
-	@echo    Windows: MinGW-w64  (C:/MinGW/bin or MSYS2 on PATH)
-	@echo    Linux:   build-essential (sudo apt install build-essential)
+	@echo    Windows: MinGW-w64  (C:/MinGW/bin or MSYS2)
+	@echo    Linux:   sudo apt install build-essential
 	@echo
