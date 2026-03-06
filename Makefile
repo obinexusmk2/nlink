@@ -48,8 +48,9 @@ CORE_SOURCES   := $(foreach f,$(FEATURES),$(wildcard $(SRC_DIR)/core/$(f)/*.c))
 CRYPTO_SOURCES := \
     src/core/crypto/shannon_entropy.c \
     src/core/crypto/env_config.c
-CLI_SOURCES    := $(wildcard $(SRC_DIR)/cli/*.c)
-ALL_SOURCES    := $(CORE_SOURCES) $(CRYPTO_SOURCES) $(CLI_SOURCES) $(SRC_DIR)/main.c
+CLI_MAIN       := $(SRC_DIR)/cli/main.c
+CLI_SOURCES    := $(filter-out $(CLI_MAIN),$(wildcard $(SRC_DIR)/cli/*.c))
+ALL_SOURCES    := $(CORE_SOURCES) $(CRYPTO_SOURCES) $(CLI_SOURCES) $(CLI_MAIN)
 
 # ── Object file lists ─────────────────────────────────────────────────────────
 OBJECTS_REL := $(patsubst $(SRC_DIR)/%.c,$(BUILD_REL_OBJ)/%.o,$(ALL_SOURCES))
@@ -79,9 +80,9 @@ all: debug release
 # =============================================================================
 release: $(TARGET)
 
-$(TARGET): $(BUILD_REL_OBJ)/main.o $(LIB_REL)
+$(TARGET): $(BUILD_REL_OBJ)/cli/main.o $(LIB_REL)
 	@if not exist "$(call winpath,$(BIN_DIR))" md "$(call winpath,$(BIN_DIR))"
-	$(CC) $(CFLAGS_RELEASE) -o $@ $(BUILD_REL_OBJ)/main.o \
+	$(CC) $(CFLAGS_RELEASE) -o $@ $(BUILD_REL_OBJ)/cli/main.o \
 	    -L$(BUILD_REL_LIB) -lnlink -Wl,--gc-sections
 	@echo [nlink] Release complete: $@
 
@@ -91,7 +92,7 @@ $(BUILD_REL_OBJ)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS_RELEASE) $(CRYPTO_FLAGS) -c $< -o $@
 
 # Release static library
-$(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/main.o,$(OBJECTS_REL))
+$(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/cli/main.o,$(OBJECTS_REL))
 	@if not exist "$(call winpath,$(BUILD_REL_LIB))" md "$(call winpath,$(BUILD_REL_LIB))"
 	$(AR) rcs $@ $^
 
@@ -100,9 +101,9 @@ $(LIB_REL): $(filter-out $(BUILD_REL_OBJ)/main.o,$(OBJECTS_REL))
 # =============================================================================
 debug: $(BUILD_DBG_BIN)/nlink.exe
 
-$(BUILD_DBG_BIN)/nlink.exe: $(BUILD_DBG_OBJ)/main.o $(LIB_DBG)
+$(BUILD_DBG_BIN)/nlink.exe: $(BUILD_DBG_OBJ)/cli/main.o $(LIB_DBG)
 	@if not exist "$(call winpath,$(BUILD_DBG_BIN))" md "$(call winpath,$(BUILD_DBG_BIN))"
-	$(CC) $(CFLAGS_DEBUG) -o $@ $(BUILD_DBG_OBJ)/main.o \
+	$(CC) $(CFLAGS_DEBUG) -o $@ $(BUILD_DBG_OBJ)/cli/main.o \
 	    -L$(BUILD_DBG_LIB) -lnlink
 	@echo [nlink] Debug complete: $@
 
@@ -112,7 +113,7 @@ $(BUILD_DBG_OBJ)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS_DEBUG) $(CRYPTO_FLAGS) -c $< -o $@
 
 # Debug static library
-$(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/main.o,$(OBJECTS_DBG))
+$(LIB_DBG): $(filter-out $(BUILD_DBG_OBJ)/cli/main.o,$(OBJECTS_DBG))
 	@if not exist "$(call winpath,$(BUILD_DBG_LIB))" md "$(call winpath,$(BUILD_DBG_LIB))"
 	$(AR) rcs $@ $^
 
