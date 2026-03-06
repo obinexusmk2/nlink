@@ -1,21 +1,17 @@
 # Pipeline component CMakeLists.txt
 
-# Define pipeline sources
+# Define pipeline sources  (only files that exist on disk)
+# pipeline_executor.c / pipeline_optimizer.c / pipeline_registry.c /
+# pipeline_scheduler.c are not yet implemented; detector has its own target below.
 set(PIPELINE_SOURCES
     nlink_pipeline.c
-    pipeline_executor.c
-    pipeline_optimizer.c
-    pipeline_registry.c
-    pipeline_scheduler.c
+    pipeline_pass.c
+    pipeline_stage.c
 )
 
-# Define pipeline headers
+# Define pipeline headers (only ship the header that exists)
 set(PIPELINE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/nlink_pipeline.h
-    ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/pipeline_executor.h
-    ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/pipeline_optimizer.h
-    ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/pipeline_registry.h
-    ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/pipeline_scheduler.h
 )
 
 # Create pipeline library
@@ -35,8 +31,8 @@ target_link_libraries(nexus_pipeline
         nexus_common
     PRIVATE
         nexus_minimizer
-        ${CMAKE_DL_LIBS}  # For dlopen/dlclose
-        pthread  # For thread safety
+        ${CMAKE_DL_LIBS}  # For dlopen/dlclose on Linux; empty on Windows
+        # pthread omitted: bare MinGW uses Win32 threads via Threads::Threads
 )
 
 # Set properties for shared library

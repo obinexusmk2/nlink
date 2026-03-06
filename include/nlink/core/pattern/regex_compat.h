@@ -13,6 +13,18 @@
 #include <string.h>
 #include <fnmatch.h>
 
+/* fnmatch.h: prefer the system header; fall back to the portable shim in
+ * include/fnmatch.h (picked up via -I./include) on Windows / bare envs.    */
+#if defined(__has_include)
+#  if __has_include(<fnmatch.h>)
+#    include <fnmatch.h>
+#  else
+#    include "fnmatch.h"
+#  endif
+#else
+#  include "fnmatch.h"
+#endif
+
 #ifndef REG_EXTENDED
 #define REG_EXTENDED 0x01
 #endif
