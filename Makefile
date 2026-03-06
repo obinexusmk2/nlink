@@ -14,8 +14,10 @@ CXX := g++
 AR  := ar
 
 # ── Compiler flags (no -fPIC on Windows) ─────────────────────────────────────
-CFLAGS_COMMON   := -Wall -Wextra -Wpedantic -I./include -std=c11
-CXXFLAGS_COMMON := -Wall -Wextra -Wpedantic -I./include -std=c++17
+# -iquote./include ensures our shim headers (fnmatch.h etc.) are found first,
+# even on systems where the system header exists but is incomplete / missing.
+CFLAGS_COMMON   := -Wall -Wextra -Wpedantic -iquote./include -I./include -std=c11
+CXXFLAGS_COMMON := -Wall -Wextra -Wpedantic -iquote./include -I./include -std=c++17
 
 CFLAGS_DEBUG   := $(CFLAGS_COMMON) -g -O0 -DDEBUG
 CFLAGS_RELEASE := $(CFLAGS_COMMON) -O2 -DNDEBUG -ffunction-sections -fdata-sections
@@ -64,7 +66,7 @@ LIB_DBG := $(BUILD_DBG_LIB)/nlink.a
 winpath = $(subst /,\,$1)
 
 # ── Phony targets ─────────────────────────────────────────────────────────────
-.PHONY: all debug release clean features help dev prod \
+.PHONY: all debug release clean cmake-reset features help dev prod \
         etps-test etps-config-test qa-test qa-validate \
         poc poc-setup spec spec-run
 
@@ -183,6 +185,16 @@ clean:
 	@if exist bin   rd /s /q bin
 	@echo [nlink] Clean complete.
 
+# cmake-reset: wipe only the CMake cache so it can be regenerated cleanly.
+# Required after switching between Windows-native cmake and WSL cmake because
+# the two environments store different absolute paths in CMakeCache.txt.
+cmake-reset:
+	@if exist build\CMakeCache.txt    del /q build\CMakeCache.txt
+	@if exist build\CMakeFiles        rd  /s /q build\CMakeFiles
+	@if exist CMakeCache.txt          del /q CMakeCache.txt
+	@if exist CMakeFiles              rd  /s /q CMakeFiles
+	@echo [nlink] CMake cache cleared. Re-run: cmake -S . -B build -G "MinGW Makefiles"
+
 # =============================================================================
 # HELP
 # =============================================================================
@@ -195,6 +207,7 @@ help:
 	@echo    debug          Build debug      build\debug\bin\nlink.exe
 	@echo    all            Build both release and debug
 	@echo    clean          Remove build\ and bin\ trees
+	@echo    cmake-reset    Wipe CMakeCache (required after Windows^<-^>WSL switch)
 	@echo    features       List all feature modules
 	@echo    etps-test      Run ETPS telemetry smoke-test (debug)
 	@echo    etps-config-test  Run ETPS test with config file (release)
