@@ -151,6 +151,9 @@ function(nlink_register_component_install COMPONENT_NAME)
       FILES_MATCHING PATTERN "*.h"
     )
   endif()
+  # Target installation is handled by component-local CMakeLists to avoid
+  # duplicate entries in the shared export set (nlink-targets).
+  set(HAS_INSTALLABLE_TARGET FALSE)
 
   # Install library target when present (target naming is not uniform across components)
   set(COMPONENT_TARGETS

@@ -11,6 +11,7 @@
 #ifndef NLINK_HAS_POSIX_REGEX
 #include <stddef.h>
 #include <string.h>
+#include <fnmatch.h>
 
 /* fnmatch.h: prefer the system header; fall back to the portable shim in
  * include/fnmatch.h (picked up via -I./include) on Windows / bare envs.    */
