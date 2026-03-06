@@ -139,40 +139,57 @@ endfunction()
 
 # Register component for installation
 function(nlink_register_component_install COMPONENT_NAME)
-  # Ensure component is valid
-  get_target_property(COMPONENT_SOURCES "nlink_${COMPONENT_NAME}" COMPONENT_SOURCES)
-  if(NOT COMPONENT_SOURCES)
+  # Component include directory
+  set(COMPONENT_INCLUDE_DIR "${NLINK_INCLUDE_DIR}/nlink/core/${COMPONENT_NAME}")
+
+  # Install headers when present
+  if(EXISTS "${COMPONENT_INCLUDE_DIR}")
+    install(
+      DIRECTORY "${COMPONENT_INCLUDE_DIR}/"
+      DESTINATION "${NLINK_INSTALL_INCLUDEDIR}/core/${COMPONENT_NAME}"
+      COMPONENT devel
+      FILES_MATCHING PATTERN "*.h"
+    )
+  endif()
+
+  # Install library target when present (target naming is not uniform across components)
+  set(COMPONENT_TARGETS
+    "nlink_${COMPONENT_NAME}_static"
+    "nlink_${COMPONENT_NAME}"
+    "nexus_${COMPONENT_NAME}"
+  )
+
+  set(HAS_INSTALLABLE_TARGET FALSE)
+  foreach(COMPONENT_TARGET ${COMPONENT_TARGETS})
+    if(TARGET ${COMPONENT_TARGET})
+      get_target_property(COMPONENT_TARGET_TYPE ${COMPONENT_TARGET} TYPE)
+      if(COMPONENT_TARGET_TYPE STREQUAL "STATIC_LIBRARY"
+         OR COMPONENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"
+         OR COMPONENT_TARGET_TYPE STREQUAL "MODULE_LIBRARY"
+         OR COMPONENT_TARGET_TYPE STREQUAL "EXECUTABLE")
+        install(
+          TARGETS ${COMPONENT_TARGET}
+          EXPORT nlink-targets
+          ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
+          LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
+          RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
+          INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
+          COMPONENT devel
+        )
+        set(HAS_INSTALLABLE_TARGET TRUE)
+        break()
+      endif()
+    endif()
+  endforeach()
+
+  if(NOT HAS_INSTALLABLE_TARGET AND NOT EXISTS "${COMPONENT_INCLUDE_DIR}")
     nlink_log(
       WARNING
       MESSAGE "Cannot register component ${COMPONENT_NAME} for installation: Component not found"
     )
     return()
   endif()
-  
-  # Component include directory
-  set(COMPONENT_INCLUDE_DIR "${NLINK_INCLUDE_DIR}/nlink/core/${COMPONENT_NAME}")
-  
-  # Install headers
-  install(
-    DIRECTORY "${COMPONENT_INCLUDE_DIR}/"
-    DESTINATION "${NLINK_INSTALL_INCLUDEDIR}/core/${COMPONENT_NAME}"
-    FILES_MATCHING PATTERN "*.h"
-    COMPONENT devel
-  )
-  
-  # Install library target
-  if(TARGET nlink_${COMPONENT_NAME}_static)
-    install(
-      TARGETS nlink_${COMPONENT_NAME}_static
-      EXPORT nlink-targets
-      ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
-      INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
-      COMPONENT devel
-    )
-  endif()
-  
+
   nlink_log(
     STATUS
     MESSAGE "Registered component ${COMPONENT_NAME} for installation"
@@ -276,34 +293,46 @@ function(nlink_install_development_components)
   install(
     DIRECTORY "${NLINK_INCLUDE_DIR}/"
     DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
-    FILES_MATCHING PATTERN "*.h"
     COMPONENT devel
+    FILES_MATCHING PATTERN "*.h"
   )
   
   # Install static library
   if(TARGET nlink_static)
-    install(
-      TARGETS nlink_static
-      EXPORT nlink-targets
-      ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
-      INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
-      COMPONENT devel
-    )
+    get_target_property(NLINK_STATIC_TYPE nlink_static TYPE)
+    if(NLINK_STATIC_TYPE STREQUAL "STATIC_LIBRARY"
+       OR NLINK_STATIC_TYPE STREQUAL "SHARED_LIBRARY"
+       OR NLINK_STATIC_TYPE STREQUAL "MODULE_LIBRARY"
+       OR NLINK_STATIC_TYPE STREQUAL "EXECUTABLE")
+      install(
+        TARGETS nlink_static
+        EXPORT nlink-targets
+        ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
+        INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
+        COMPONENT devel
+      )
+    endif()
   endif()
   
   # Install shared library
   if(TARGET nlink_shared)
-    install(
-      TARGETS nlink_shared
-      EXPORT nlink-targets
-      ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
-      RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
-      INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
-      COMPONENT devel
-    )
+    get_target_property(NLINK_SHARED_TYPE nlink_shared TYPE)
+    if(NLINK_SHARED_TYPE STREQUAL "STATIC_LIBRARY"
+       OR NLINK_SHARED_TYPE STREQUAL "SHARED_LIBRARY"
+       OR NLINK_SHARED_TYPE STREQUAL "MODULE_LIBRARY"
+       OR NLINK_SHARED_TYPE STREQUAL "EXECUTABLE")
+      install(
+        TARGETS nlink_shared
+        EXPORT nlink-targets
+        ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
+        INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
+        COMPONENT devel
+      )
+    endif()
   endif()
   
   nlink_log(

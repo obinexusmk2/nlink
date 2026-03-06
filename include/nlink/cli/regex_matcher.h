@@ -11,7 +11,7 @@
  #define NLINK_REGEX_MATCHER_H
  
  #include <stdbool.h>
- #include <regex.h>
+ #include "nlink/core/pattern/regex_compat.h"
  #include <stddef.h>
  #include "nlink/core/common/nexus_core.h"
  #include "nlink/core/common/command.h"

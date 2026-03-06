@@ -14,7 +14,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <regex.h>
+#include "nlink/core/pattern/regex_compat.h"
 #include <string.h>
 
 
