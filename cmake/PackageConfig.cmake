@@ -151,39 +151,28 @@ function(nlink_register_component_install COMPONENT_NAME)
       FILES_MATCHING PATTERN "*.h"
     )
   endif()
-  # Target installation is handled by component-local CMakeLists to avoid
-  # duplicate entries in the shared export set (nlink-targets).
+  # Target installation is handled exclusively by each component's local
+  # CMakeLists.txt via install(TARGETS ... EXPORT nlink-targets ...).
+  # Do NOT install targets here — doing so would add the same target to
+  # nlink-targets twice (once here, once in the component CMakeLists),
+  # causing the CMake error:
+  #   install(EXPORT "nlink-targets"...) includes target "nlink_common_static"
+  #   more than once in the export set.
+  # Components that use nlink_build_component() (ComponentSystem.cmake) also
+  # perform their own install inside that macro.
   set(HAS_INSTALLABLE_TARGET FALSE)
 
-  # Install library target when present (target naming is not uniform across components)
-  set(COMPONENT_TARGETS
-    "nlink_${COMPONENT_NAME}_static"
-    "nlink_${COMPONENT_NAME}"
-    "nexus_${COMPONENT_NAME}"
-  )
-
-  set(HAS_INSTALLABLE_TARGET FALSE)
-  foreach(COMPONENT_TARGET ${COMPONENT_TARGETS})
-    if(TARGET ${COMPONENT_TARGET})
-      get_target_property(COMPONENT_TARGET_TYPE ${COMPONENT_TARGET} TYPE)
-      if(COMPONENT_TARGET_TYPE STREQUAL "STATIC_LIBRARY"
-         OR COMPONENT_TARGET_TYPE STREQUAL "SHARED_LIBRARY"
-         OR COMPONENT_TARGET_TYPE STREQUAL "MODULE_LIBRARY"
-         OR COMPONENT_TARGET_TYPE STREQUAL "EXECUTABLE")
-        install(
-          TARGETS ${COMPONENT_TARGET}
-          EXPORT nlink-targets
-          ARCHIVE DESTINATION "${NLINK_INSTALL_LIBDIR}"
-          LIBRARY DESTINATION "${NLINK_INSTALL_LIBDIR}"
-          RUNTIME DESTINATION "${NLINK_INSTALL_BINDIR}"
-          INCLUDES DESTINATION "${NLINK_INSTALL_INCLUDEDIR}"
-          COMPONENT devel
-        )
-        set(HAS_INSTALLABLE_TARGET TRUE)
-        break()
-      endif()
+  # Determine whether ANY installable target exists for the warning check below
+  foreach(_ct
+      "nlink_${COMPONENT_NAME}_static"
+      "nlink_${COMPONENT_NAME}"
+      "nexus_${COMPONENT_NAME}")
+    if(TARGET ${_ct})
+      set(HAS_INSTALLABLE_TARGET TRUE)
+      break()
     endif()
   endforeach()
+  unset(_ct)
 
   if(NOT HAS_INSTALLABLE_TARGET AND NOT EXISTS "${COMPONENT_INCLUDE_DIR}")
     nlink_log(
