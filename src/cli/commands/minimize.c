@@ -16,9 +16,9 @@
  
  // Forward declarations
  static int minimize_execute(NexusContext* ctx, int argc, char** argv);
- static void __attribute__((unused)) minimize_print_help(void);
- static bool __attribute__((unused)) minimize_parse_args(int argc, char** argv, void** command_data);
- static void __attribute__((unused)) minimize_free_data(void* command_data);
+ static void NLINK_ATTR_UNUSED minimize_print_help(void);
+ static bool NLINK_ATTR_UNUSED minimize_parse_args(int argc, char** argv, void** command_data);
+ static void NLINK_ATTR_UNUSED minimize_free_data(void* command_data);
 /**
     * @brief Structure for minimize command data
     */

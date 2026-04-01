@@ -12,7 +12,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "../tactic/tactic.h"
+#include "nlink/core/tactic/tactic.h"
 
 /**
  * NexusLink type identifier
@@ -34,7 +34,7 @@ typedef enum {
 /**
  * Core type descriptor
  */
-typedef struct {c
+typedef struct {
     nlink_type_id id;
     const char* name;
     size_t size;

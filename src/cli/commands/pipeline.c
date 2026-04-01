@@ -21,7 +21,7 @@
  static NexusCommand pipeline_command;
  
  /* Function to simulate data processing for pipeline stage */
- static NexusResult __attribute__((unused)) dummy_stage_func(void* input, void* output, void* user_data) {
+ static NexusResult NLINK_ATTR_UNUSED dummy_stage_func(void* input, void* output, void* user_data) {
      /* In a real implementation, this would process data */
      /* For now, just memcpy input to output */
      memcpy(output, input, 1024);  /* Simplified, would use actual size */
@@ -167,7 +167,7 @@
  /**
   * @brief Add stage to pipeline command handler
   */
- static NexusResult __attribute__((unused)) pipeline_add_stage_handler(NexusContext* ctx, NlinkCommandParams* params) {
+ static NexusResult NLINK_ATTR_UNUSED pipeline_add_stage_handler(NexusContext* ctx, NlinkCommandParams* params) {
      if (!ctx) {
          return NEXUS_INVALID_PARAMETER;
      }
@@ -200,7 +200,7 @@
  /**
   * @brief Execute pipeline command handler
   */
- static NexusResult __attribute__((unused)) pipeline_execute_handler(NexusContext* ctx, NlinkCommandParams* params) {
+ static NexusResult NLINK_ATTR_UNUSED pipeline_execute_handler(NexusContext* ctx, NlinkCommandParams* params) {
      if (!ctx) {
          return NEXUS_INVALID_PARAMETER;
      }
@@ -271,7 +271,7 @@
  /**
   * @brief Cleanup pipeline command data
   */
- static void __attribute__((unused)) pipeline_free_data(void* command_data) {
+ static void NLINK_ATTR_UNUSED pipeline_free_data(void* command_data) {
      if (!command_data) {
          return;
      }
@@ -297,7 +297,7 @@
  /**
   * @brief Print help for the pipeline command
   */
- static void __attribute__((unused)) pipeline_print_help(void) {
+ static void NLINK_ATTR_UNUSED pipeline_print_help(void) {
      printf("Usage: pipeline <subcommand> [options]\n\n");
      printf("Subcommands:\n");
      printf("  create [options]    Create a new pipeline\n");

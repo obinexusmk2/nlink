@@ -4,7 +4,7 @@
  * @copyright Copyright © 2025 OBINexus Computing
  */
 
-#include "type.h"
+#include "nlink/core/token/type.h"
 #include <stdlib.h>
 #include <string.h>
 

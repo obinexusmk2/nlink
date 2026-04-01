@@ -28,11 +28,17 @@ option(BUILD_DOCUMENTATION "Build documentation" OFF)
 option(NLINK_USE_CLI "Build with CLI support" ON)
 
 # Initialize build system
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(_NLINK_RELEASE_ARG RELEASE_BUILD)
+else()
+  set(_NLINK_RELEASE_ARG "")
+endif()
+
 nlink_init_build_system(
   VERSION "${PROJECT_VERSION}"
   ENABLE_TESTING ${BUILD_TESTING}
   ENABLE_COVERAGE ${ENABLE_COVERAGE}
-  RELEASE_BUILD ${CMAKE_BUILD_TYPE} STREQUAL "Release"
+  ${_NLINK_RELEASE_ARG}
 )
 
 # Find dependencies

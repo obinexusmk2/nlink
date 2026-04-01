@@ -28,8 +28,8 @@
  /* Forward declarations for function prototypes */
  static NexusResult version_handler(NexusContext* ctx);
  static NexusResult version_handler_with_params(NexusContext* ctx, NlinkCommandParams* params);
- static void __attribute__((unused)) version_free_data(void* command_data);
- static void __attribute__((unused)) version_print_help(void);
+ static void NLINK_ATTR_UNUSED version_free_data(void* command_data);
+ static void NLINK_ATTR_UNUSED version_print_help(void);
  
  /**
   * @brief Handler for version command

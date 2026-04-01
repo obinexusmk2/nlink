@@ -12,10 +12,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-/* Normalised absolute paths — resolved via -I./include / -iquote./include   */
-/* ../tactic/  → include/nlink/core/tatit/   (module is "tatit", not "tactic") */
-/* ../type/    → include/nlink/core/token/   (type.h lives under token/)       */
-#include "nlink/core/tatit/tactic.h"
+#include "nlink/core/tactic/tactic.h"
 #include "nlink/core/token/type.h"
 #include "../tokenizer/tokenizer.h"
 

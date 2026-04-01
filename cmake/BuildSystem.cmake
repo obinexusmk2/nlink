@@ -66,9 +66,17 @@ endforeach()
 set(NLINK_C_STANDARD 11)
 set(NLINK_CXX_STANDARD 14)
 
-set(NLINK_WARNING_FLAGS -Wall -Wextra -Wno-unused-parameter)
-set(NLINK_DEBUG_FLAGS -g -DDEBUG)
-set(NLINK_RELEASE_FLAGS -O2 -DNDEBUG)
+if(MSVC)
+  # MSVC manages optimization and debug flags via build type automatically.
+  # Adding -O2/-g explicitly conflicts with /RTC1 in Debug builds.
+  set(NLINK_WARNING_FLAGS /W3)
+  set(NLINK_DEBUG_FLAGS /DDEBUG)
+  set(NLINK_RELEASE_FLAGS /DNDEBUG)
+else()
+  set(NLINK_WARNING_FLAGS -Wall -Wextra -Wno-unused-parameter)
+  set(NLINK_DEBUG_FLAGS -g -DDEBUG)
+  set(NLINK_RELEASE_FLAGS -O2 -DNDEBUG)
+endif()
 
 # Function to initialize the build system
 function(nlink_init_build_system)

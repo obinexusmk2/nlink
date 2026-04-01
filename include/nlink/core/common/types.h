@@ -15,11 +15,18 @@
  #include <stdlib.h>
  #include <string.h>
  
+ /* Cross-platform unused-function suppression */
+ #if defined(__GNUC__) || defined(__clang__)
+ #  define NLINK_ATTR_UNUSED __attribute__((unused))
+ #else
+ #  define NLINK_ATTR_UNUSED
+ #endif
+
  #ifdef __cplusplus
  extern "C"
  {
  #endif
- 
+
      /* Forward declarations for structures to avoid circular dependencies */
      typedef struct NexusContext NexusContext;
      typedef struct NexusComponent NexusComponent;
@@ -103,8 +110,12 @@
          NEXUS_ERROR_INVALID_ARGUMENT = 1000,  /**< Invalid argument for minimizer */
          NEXUS_ERROR_OUT_OF_MEMORY = 1001,     /**< Memory allocation failed in minimizer */
          NEXUS_ERROR_INVALID_STATE = 1002,     /**< Invalid state for operation */
-         NEXUS_ERROR_INVALID_REFERENCE = 1003  /**< Invalid reference provided */
+         NEXUS_ERROR_INVALID_REFERENCE = 1003, /**< Invalid reference provided */
+         NEXUS_ERROR_VALIDATION_FAILED = 1004  /**< Validation failed */
      } NexusResult;
+
+     /** Alias used by the error/exception subsystem */
+     typedef NexusResult NexusErrorCode;
  
      /**
       * @brief Log levels for NexusLink logging

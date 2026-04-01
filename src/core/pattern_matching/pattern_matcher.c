@@ -9,8 +9,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+#ifndef _WIN32
 #include <dirent.h>
 #include <sys/stat.h>
+#endif
 
 #define INITIAL_MATCHES_CAPACITY 16
 

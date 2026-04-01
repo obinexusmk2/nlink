@@ -16,8 +16,15 @@
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
- #include <dlfcn.h>
  #include <errno.h>
+ #ifdef _WIN32
+ #  include <windows.h>
+ #  define NLINK_MUTEX_TYPE CRITICAL_SECTION
+ #else
+ #  include <dlfcn.h>
+ #  include <pthread.h>
+ #  define NLINK_MUTEX_TYPE pthread_mutex_t
+ #endif
  
  #ifdef __cplusplus
  extern "C" {
@@ -40,7 +47,7 @@ typedef struct NexusHandleRegistry {
     size_t count;       /**< Number of registered handles */
     size_t capacity;    /**< Capacity of the arrays */
 
-    pthread_mutex_t mutex; /**< Mutex for thread safety */
+    NLINK_MUTEX_TYPE mutex; /**< Mutex for thread safety */
 } NexusHandleRegistry;
 /**
  * @brief Component structure
