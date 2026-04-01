@@ -1,8 +1,12 @@
 # NexusLink (nlink)
 
-**OBINexus Computing** — Dynamic Component Linkage System
+**OBINexus Computing** — Magnetic Osmotic Nexus Linker — Link by Need
 
-NexusLink is a cross-platform component linkage and build orchestration system for C projects. It provides a tokenizer/parser pipeline, a minimizer/automaton subsystem, Shannon entropy–based crypto utilities, pattern matching, and a declarative scripting CLI — all linked as a single static library (`libnlink.a`) or executable (`nlink` / `nlink.exe`).
+NexusLink is a cross-platform, on-demand component linkage and build orchestration system for C projects. Inspired by the principle of *magnetic osmosis* — components are drawn together by need rather than forced by configuration — NexusLink resolves and links only what is required, when it is required. It provides a tokenizer/parser pipeline, a minimizer/automaton subsystem, Shannon entropy–based crypto utilities, pattern matching, and a declarative scripting CLI — all linked as a single static library (`libnlink.a`) or executable (`nlink` / `nlink.exe`).
+
+### Design Philosophy
+
+> **"Link by Need"** — NexusLink follows a magnetic osmotic model: components attract each other through declared dependencies, not hard-wired inclusion. Like osmotic pressure driving molecules across a membrane, NexusLink's lazy versioned loader resolves symbols at the boundary between what is loaded and what is needed. This keeps binaries lean, linking predictable, and component boundaries explicit.
 
 ---
 
@@ -118,21 +122,21 @@ make clean
 ### Environment variants
 
 ```bash
-make dev    # enables -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1
-make prod   # enables -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1
+make dev    # -DNLINK_ENV=dev  -DSHANNON_STRICT_MODE=1    (strict entropy validation)
+make prod   # -DNLINK_ENV=prod -DSHANNON_PERFORMANCE_MODE=1 (performance-optimised)
 ```
 
 ### Other targets
 
 ```bash
-make features        # list all feature modules
-make etps-test       # ETPS telemetry smoke test (debug binary)
-make etps-config-test # ETPS test with config file (release binary)
-make qa-test         # TP/TN/FP/FN QA soundness validation
-make qa-validate     # POC + spec validation suite
-make poc             # run Python bridge integration script
-make spec            # build QA specification framework
-make spec-run        # execute QA specifications
+make features          # list all feature modules
+make etps-test         # ETPS telemetry smoke test (JSON output)
+make etps-config-test  # ETPS test with config file (release binary)
+make qa-test           # TP/TN/FP/FN QA soundness validation
+make qa-validate       # POC + spec validation suite
+make poc               # run POC enhanced integration build
+make spec              # build QA specification framework
+make spec-run          # execute QA specifications
 ```
 
 ---
@@ -160,7 +164,7 @@ cmake --build build --parallel
 > **Important**: If you switch between Windows and WSL, the CMakeCache will have stale paths. Clear it first:
 >
 > ```bash
-> make cmake-reset    # or: rm -f build/CMakeCache.txt; rm -rf build/CMakeFiles
+> make cmake-reset    # removes build/cmake/CMakeCache.txt and CMakeFiles/
 > ```
 
 ### Install
@@ -459,4 +463,4 @@ Shannon entropy support is always compiled in via `-DSHANNON_ENTROPY_ENABLED=1`.
 
 ---
 
-© 2025 OBINexus Computing. All rights reserved.
+© 2026 OBINexus Computing. All rights reserved.

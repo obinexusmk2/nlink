@@ -28,7 +28,6 @@
  
  // Forward declarations for standard commands
  extern NexusCommand load_command;
- extern NexusCommand stats_command;
  extern NexusCommand version_command;
  extern NexusCommand minimal_command;
  extern NexusCommand minimize_command;
@@ -53,7 +52,14 @@
      .handler = list_command_handler,
      .handler_with_params = NULL
  };
- 
+
+ NexusCommand stats_command = {
+     .name = "stats",
+     .description = "Show system statistics",
+     .handler = stats_command_handler,
+     .handler_with_params = NULL
+ };
+
  static NexusCommand* g_basic_commands[] = {
      &help_command,
      &list_command,
@@ -474,14 +480,6 @@
  static NexusResult help_command_handler(NexusContext* ctx) {
      printf("Available Commands:\n");
      printf("------------------\n\n");
-     
-     // Get all commands
-     NexusCommand* commands[20]; // Assuming max 20 commands
-     size_t count = cli_command_registry_get_all_commands(commands, 20);
-     
-     for (size_t i = 0; i < count; i++) {
-         printf("%-15s - %s\n", commands[i]->name, commands[i]->description);
-     }
      
      printf("\nUsage Examples:\n");
      printf("  load core                     - Load the core component\n");

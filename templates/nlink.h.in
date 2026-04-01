@@ -136,36 +136,7 @@ void* nlink_load_component(const char* name, const char* version, const char* pa
  */
 int nlink_minimal_command(const char* command);
 
-/**
- * Create a pipeline for component processing
- * 
- * @param mode Pipeline execution mode ("auto", "single", or "multi")
- * @param optimization Enable or disable optimization ("enabled" or "disabled")
- * @return Handle to the created pipeline or NULL on failure
- */
-void* nlink_pipeline_create(const char* mode, const char* optimization);
-
-/**
- * Add a stage to a pipeline
- * 
- * @param pipeline Pipeline handle from nlink_pipeline_create
- * @param stage_name Name of the stage to add
- * @return 0 on success, error code on failure
- */
-int nlink_pipeline_add_stage(void* pipeline, const char* stage_name);
-
-/**
- * Execute a pipeline
- * 
- * @param pipeline Pipeline handle from nlink_pipeline_create
- * @param input Input data for the pipeline or NULL
- * @param input_size Size of the input data or 0
- * @param output Buffer to store output or NULL
- * @param output_size Pointer to size of output buffer, updated with actual size
- * @return 0 on success, error code on failure
- */
-int nlink_pipeline_execute(void* pipeline, const void* input, size_t input_size, 
-                          void* output, size_t* output_size);
+/* Pipeline API is declared in nlink/core/pipeline/nlink_pipeline.h */
 
 #ifdef __cplusplus
 }

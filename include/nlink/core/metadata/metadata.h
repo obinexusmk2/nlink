@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
-#include "nexus/json.h"  // Using our own JSON implementation
+#include "nlink/core/common/nexus_json.h"
 
 // Dependency structure
 typedef struct {

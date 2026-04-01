@@ -13,7 +13,7 @@
 
 #include "nlink/core/common/nexus_core.h"
 #include "nlink/core/common/result.h"
-#include "nlink/mpsystem/mps_stream.h"
+#include "nlink/core/mpsystem/mps_stream.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus

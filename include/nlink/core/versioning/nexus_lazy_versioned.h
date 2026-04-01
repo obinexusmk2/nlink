@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "nlink/core/common/nexus_core.h"
+#include "nlink/core/symbols/nexus_versioned_symbols.h"
 
 // Version information structure
 typedef struct {
@@ -18,28 +19,6 @@ typedef struct {
 	char* providing_component;
 	bool is_exact_match;
 } VersionInfo;
-
-// Versioned symbol structure
-typedef struct {
-	char* name;
-	char* version;
-	char* component_id;
-	void* address;
-	int ref_count;
-	time_t last_used;
-} VersionedSymbol;
-
-// Symbol table structure
-typedef struct {
-	VersionedSymbol* symbols;
-	size_t size;
-	size_t capacity;
-} SymbolTable;
-
-// Registry for versioned symbols
-typedef struct {
-	SymbolTable exported;
-} VersionedSymbolRegistry;
 
 // Function declarations
 void nexus_check_unused_versioned_libraries(VersionedSymbolRegistry* registry);

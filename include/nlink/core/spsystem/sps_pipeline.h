@@ -13,8 +13,8 @@
 
 #include "nlink/core/common/nexus_core.h"
 #include "nlink/core/common/result.h"
-#include "nlink/spsystem/sps_config.h"
-#include "nlink/spsystem/sps_stream.h"
+#include "nlink/core/spsystem/sps_config.h"
+#include "nlink/core/spsystem/sps_stream.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus

@@ -66,9 +66,9 @@ endforeach()
 set(NLINK_C_STANDARD 11)
 set(NLINK_CXX_STANDARD 14)
 
-set(NLINK_WARNING_FLAGS "-Wall -Wextra -Wno-unused-parameter")
-set(NLINK_DEBUG_FLAGS "-g -DDEBUG")
-set(NLINK_RELEASE_FLAGS "-O2 -DNDEBUG")
+set(NLINK_WARNING_FLAGS -Wall -Wextra -Wno-unused-parameter)
+set(NLINK_DEBUG_FLAGS -g -DDEBUG)
+set(NLINK_RELEASE_FLAGS -O2 -DNDEBUG)
 
 # Function to initialize the build system
 function(nlink_init_build_system)
@@ -90,7 +90,7 @@ function(nlink_init_build_system)
   set(CMAKE_CXX_STANDARD ${NLINK_CXX_STANDARD} PARENT_SCOPE)
   
   # Add include directories
-  include_directories(${NLINK_INCLUDE_DIR} ${NLINK_SRC_DIR})
+  include_directories(${NLINK_INCLUDE_DIR} ${NLINK_SRC_DIR} ${NLINK_BUILD_DIR}/include)
   
   # Set build type flags
   if(INIT_RELEASE_BUILD)
@@ -220,7 +220,7 @@ function(nlink_define_main_executable)
   endif()
 
   add_executable(${EXE_NAME} ${EXE_SOURCES})
-  target_include_directories(${EXE_NAME} PRIVATE ${NLINK_INCLUDE_DIR} ${NLINK_SRC_DIR})
+  target_include_directories(${EXE_NAME} PRIVATE ${NLINK_INCLUDE_DIR} ${NLINK_SRC_DIR} ${NLINK_BUILD_DIR}/include)
 
   if(EXE_DEPENDENCIES)
     target_link_libraries(${EXE_NAME} PRIVATE ${EXE_DEPENDENCIES})

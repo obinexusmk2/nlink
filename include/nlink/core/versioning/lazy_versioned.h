@@ -8,16 +8,9 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdbool.h>
-#include  "nexus_lazy_versioned.h"
+#include "nexus_lazy_versioned.h"
 #include "nlink/core/common/nexus_core.h"
-
-typedef struct {
-	void** handles;
-	char** paths;
-	char** components;
-	size_t count;
-	pthread_mutex_t mutex;
-} NexusHandleRegistry;
+#include "nlink/core/common/nexus_loader.h"
 
 typedef struct {
 	bool auto_unload;

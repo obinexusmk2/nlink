@@ -77,7 +77,7 @@ nlink_define_main_executable(
 
 # Generate unified header
 nlink_generate_unified_header(
-  OUTPUT "${NLINK_BUILD_DIR}/include/nlink.h"
+  OUTPUT "${NLINK_BUILD_DIR}/include/nlink/core/nlink.h"
   TEMPLATE "${NLINK_PROJECT_ROOT}/templates/nlink.h.in"
   COMPONENTS ${VALID_CORE_COMPONENTS}
   VERBOSE
@@ -91,7 +91,7 @@ nlink_init_package_config(
 )
 
 # Installation setup
-nlink_install_unified_header()
+nlink_install_unified_header(SOURCE "${NLINK_BUILD_DIR}/include/nlink/core/nlink.h")
 nlink_install_development_components()
 nlink_install_executable(TARGET nlink)
 

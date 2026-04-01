@@ -54,21 +54,6 @@
  }
  
  /**
-  * @brief Command implementation for stats command
-  * 
-  * @param ctx The NexusLink context
-  * @return NexusResult Result code
-  */
- NexusResult stats_command(NexusContext* ctx) {
-     if (!ctx) {
-         return NEXUS_INVALID_PARAMETER;
-     }
-     
-     // Placeholder implementation
-     return NEXUS_SUCCESS;
- }
- 
- /**
   * @brief Command implementation for build command
   * 
   * @param ctx The NexusLink context

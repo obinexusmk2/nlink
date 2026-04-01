@@ -32,6 +32,7 @@ typedef struct {
     char* component_id;   // Component that provides this symbol
     int priority;         // Resolution priority (higher wins)
     int ref_count;        // Reference counting for usage tracking
+    time_t last_used;     // Timestamp of last usage (for lazy unloading)
 } VersionedSymbol;
 
 // Symbol table with version support
