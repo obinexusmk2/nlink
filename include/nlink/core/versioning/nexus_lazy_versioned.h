@@ -2,8 +2,10 @@
 #define NEXUS_LAZY_VERSIONED_H
 
 #include <time.h>
-#include <pthread.h>
-#include <dlfcn.h>
+#ifndef _WIN32
+#  include <pthread.h>
+#  include <dlfcn.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

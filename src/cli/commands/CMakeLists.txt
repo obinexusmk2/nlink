@@ -17,13 +17,17 @@ target_include_directories(nexus_commands PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Set compile options
-target_compile_options(nexus_commands PRIVATE
-	-Wall 
-	-Wextra
-	-Wno-unused-parameter
-	-fPIC
-)
+# Set compile options — MSVC and GCC/Clang use different flag syntax
+if(MSVC)
+    target_compile_options(nexus_commands PRIVATE /W3 /wd4996 /wd4013)
+else()
+    target_compile_options(nexus_commands PRIVATE
+        -Wall
+        -Wextra
+        -Wno-unused-parameter
+        -fPIC
+    )
+endif()
 
 # Set position independent code for the object library
 set_target_properties(nexus_commands PROPERTIES

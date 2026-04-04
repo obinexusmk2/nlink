@@ -1,7 +1,14 @@
 // cold.c – "Cold" code to be lazy-loaded
 #include <stdio.h>
 
-__attribute__((visibility("hidden"))) void cold_function_impl(int x) {
+/* __attribute__((visibility)) is a GCC/Clang extension; MSVC ignores it */
+#if defined(__GNUC__) || defined(__clang__)
+#  define NLINK_HIDDEN __attribute__((visibility("hidden")))
+#else
+#  define NLINK_HIDDEN
+#endif
+
+NLINK_HIDDEN void cold_function_impl(int x) {
   printf("Lazy-loaded function called with %d\n", x);
 }
 

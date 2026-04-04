@@ -5,6 +5,7 @@
  */
 
 #include "nlink/core/config/config_validator.h"
+#include "nlink/core/common/nexus_result.h"
 #include "nlink/core/common/nexus_error.h"
 #include <string.h>
 #include <ctype.h>

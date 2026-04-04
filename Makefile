@@ -7,15 +7,16 @@ PROJECT_ROOT := $(CURDIR)
 SRC_DIR := $(PROJECT_ROOT)/src
 INCLUDE_DIR := $(PROJECT_ROOT)/include
 BUILD_DIR := $(PROJECT_ROOT)/build
-CMAKE_BUILD_DIR := $(BUILD_DIR)/cmake
 
-# Cross-platform detection
+# Cross-platform detection — separate build trees so Windows and WSL caches never collide
 ifeq ($(OS),Windows_NT)
-  BINARY  := $(CMAKE_BUILD_DIR)/bin/nlink.exe
-  RM_RF   := cmd /c "if exist "$(BUILD_DIR)" rd /s /q "$(BUILD_DIR)""
+  CMAKE_BUILD_DIR := $(BUILD_DIR)/windows
+  BINARY          := $(CMAKE_BUILD_DIR)/bin/nlink.exe
+  RM_RF           := cmd /c "if exist "$(BUILD_DIR)" rd /s /q "$(BUILD_DIR)""
 else
-  BINARY  := $(CMAKE_BUILD_DIR)/bin/nlink
-  RM_RF   := rm -rf $(BUILD_DIR)
+  CMAKE_BUILD_DIR := $(BUILD_DIR)/linux
+  BINARY          := $(CMAKE_BUILD_DIR)/bin/nlink
+  RM_RF           := rm -rf $(BUILD_DIR)
 endif
 MKDIR_P := cmake -E make_directory
 

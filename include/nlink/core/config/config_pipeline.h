@@ -21,27 +21,27 @@ extern "C" {
  *
  * @param ctx Context for execution
  * @param buffer Buffer containing input/output data
- * @return NexusResult Result of tokenization
+ * @return nexus_result Result of tokenization
  */
-NexusResult config_tokenize_stage(NexusContext* ctx, NexusBuffer* buffer);
+nexus_result config_tokenize_stage(NexusContext* ctx, NexusBuffer* buffer);
 
 /**
  * @brief Configuration validation stage
  *
  * @param ctx Context for execution
  * @param buffer Buffer containing input/output data
- * @return NexusResult Result of validation
+ * @return nexus_result Result of validation
  */
-NexusResult config_validate_stage(NexusContext* ctx, NexusBuffer* buffer);
+nexus_result config_validate_stage(NexusContext* ctx, NexusBuffer* buffer);
 
 /**
  * @brief Pattern resolution stage for configuration
  *
  * @param ctx Context for execution
  * @param buffer Buffer containing input/output data
- * @return NexusResult Result of pattern resolution
+ * @return nexus_result Result of pattern resolution
  */
-NexusResult config_resolve_patterns_stage(NexusContext* ctx, NexusBuffer* buffer);
+nexus_result config_resolve_patterns_stage(NexusContext* ctx, NexusBuffer* buffer);
 
 /**
  * @brief Create a default configuration pipeline
@@ -56,9 +56,9 @@ PipelineStage create_default_config_pipeline(void);
  * @param filename Configuration file to process
  * @param ctx Context for execution
  * @param out_root Pointer to store the root configuration section
- * @return NexusResult Result of processing
+ * @return nexus_result Result of processing
  */
-NexusResult process_config_file(
+nexus_result process_config_file(
     const char* filename,
     NexusContext* ctx,
     nlink_token_config_section** out_root

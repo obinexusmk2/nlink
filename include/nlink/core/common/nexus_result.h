@@ -76,29 +76,31 @@ nexus_result nexus_result_exception_to_error(nexus_result result);
 void nexus_result_log(const nexus_result* result);
 
 /**
- * Check if a result is successful
- * @param result Result to check
+ * Check if a monad result is successful.
+ * Named nexus_monad_is_* to avoid collision with the enum-based
+ * nexus_result_is_success/nexus_result_is_error defined in result.h.
+ * @param result Pointer to nexus_result monad
  * @return true if successful
  */
-static inline bool nexus_result_is_success(const nexus_result* result) {
+static inline bool nexus_monad_is_success(const nexus_result* result) {
     return result != NULL && result->status == NEXUS_STATUS_SUCCESS;
 }
 
 /**
- * Check if a result is an exception
- * @param result Result to check
+ * Check if a monad result is an exception
+ * @param result Pointer to nexus_result monad
  * @return true if exception
  */
-static inline bool nexus_result_is_exception(const nexus_result* result) {
+static inline bool nexus_monad_is_exception(const nexus_result* result) {
     return result != NULL && result->status == NEXUS_STATUS_EXCEPTION;
 }
 
 /**
- * Check if a result is an error
- * @param result Result to check
+ * Check if a monad result is an error
+ * @param result Pointer to nexus_result monad
  * @return true if error
  */
-static inline bool nexus_result_is_error(const nexus_result* result) {
+static inline bool nexus_monad_is_error(const nexus_result* result) {
     return result != NULL && result->status == NEXUS_STATUS_ERROR;
 }
 
@@ -109,7 +111,7 @@ static inline bool nexus_result_is_error(const nexus_result* result) {
 #define NEXUS_TRY(expr) \
     do { \
         nexus_result _result = (expr); \
-        if (_result.status != NEXUS_STATUS_SUCCESS) { \
+        if (!nexus_monad_is_success(&_result)) { \
             return _result; \
         } \
     } while (0)

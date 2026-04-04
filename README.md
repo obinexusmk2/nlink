@@ -34,7 +34,13 @@ sudo apt install build-essential cmake
 
 GCC 9+ and CMake 3.16+ are recommended.
 
-### Windows (MinGW-w64)
+### Windows — MSVC (recommended for native Windows builds)
+
+Install [Visual Studio 2022](https://visualstudio.microsoft.com/) (Community or higher) with the **Desktop development with C++** workload. CMake 3.16+ is included with Visual Studio.
+
+From a **Developer PowerShell** or **Developer Command Prompt** run `make` or invoke CMake directly (see [Building with CMake](#building-with-cmake)).
+
+### Windows — MinGW-w64 (alternative)
 
 Install [MSYS2](https://www.msys2.org/) and then from the MSYS2 shell:
 
@@ -44,7 +50,11 @@ pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake make
 
 Or install the standalone [MinGW-w64](https://sourceforge.net/projects/mingw-w64/) toolchain and ensure `gcc`, `g++`, `ar`, and `make` are on your `PATH` (e.g. `C:\MinGW\bin`).
 
-> **Note**: On Windows the build system detects `$(OS) == Windows_NT` automatically and switches to `cmd.exe` with `md`/`rd` directory commands. No separate `Makefile.win` is needed — a single `Makefile` handles both platforms.
+> **Note**: On Windows the build system detects `$(OS) == Windows_NT` automatically. A single `Makefile` handles both platforms — no separate `Makefile.win` is needed.
+
+### POSIX-only features
+
+The **lazy versioned loader** (`src/core/common/nexus_loader.c`) and the **lazy versioning header** (`include/nlink/core/versioning/lazy_versioned.h`) use POSIX threads and `dlopen`/`dlsym`. On Windows these translate to `CRITICAL_SECTION` / `LoadLibrary` respectively. If you are building with MSVC, `dlopen` calls in `nexus_loader.c` will not link; those call-sites require a Windows port or must be excluded from the MSVC build.
 
 ---
 
@@ -81,7 +91,9 @@ nlink/
 │       ├── tokenizer/
 │       └── …
 ├── bin/                      # Release executable (created by Make)
-└── build/                    # Object files, static libraries, debug binary
+└── build/
+    ├── windows/              # MSVC build tree  (created by Make on Windows_NT)
+    └── linux/                # GCC/Clang build tree (created by Make on WSL/Linux)
 ```
 
 ---
@@ -161,10 +173,12 @@ cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build --parallel
 ```
 
-> **Important**: If you switch between Windows and WSL, the CMakeCache will have stale paths. Clear it first:
+> **Platform-specific build trees**: The `Makefile` writes CMake output to `build/windows/` when run under Windows (`OS=Windows_NT`) and to `build/linux/` under WSL or Linux. The two trees are completely independent, so **you can switch between Windows and WSL at any time without clearing the cache**.
+>
+> If you ever need to force a full CMake reconfigure for the current platform:
 >
 > ```bash
-> make cmake-reset    # removes build/cmake/CMakeCache.txt and CMakeFiles/
+> make cmake-reset    # removes CMakeCache.txt and CMakeFiles/ from the active platform tree
 > ```
 
 ### Install

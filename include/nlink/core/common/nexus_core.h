@@ -31,6 +31,15 @@
 
 
 
+/**
+ * @brief Generic byte buffer used by pipeline stages
+ */
+typedef struct NexusBuffer {
+    void*  data;      /**< Pointer to buffer contents */
+    size_t size;      /**< Number of bytes currently used */
+    size_t capacity;  /**< Total allocated bytes */
+} NexusBuffer;
+
 /* Config structure for context creation */
 typedef struct NexusConfig NexusConfig;
 struct NexusConfig {

@@ -13,7 +13,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
+/* pthread.h / windows.h included transitively via nexus_loader.h */
+
+/* Portable dl* shim: use Windows API on _WIN32, POSIX dlopen elsewhere */
+#ifdef _WIN32
+#  include <windows.h>
+static void* nlink_dlopen(const char* path, int flags) {
+    (void)flags;
+    return (void*)LoadLibraryA(path);
+}
+static void* nlink_dlsym(void* handle, const char* symbol) {
+    return (void*)GetProcAddress((HMODULE)handle, symbol);
+}
+static int nlink_dlclose(void* handle) {
+    return FreeLibrary((HMODULE)handle) ? 0 : -1;
+}
+static const char* nlink_dlerror(void) {
+    static char buf[256];
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL, GetLastError(), 0, buf, sizeof(buf), NULL);
+    return buf;
+}
+#  define NLINK_DLOPEN(path, flags) nlink_dlopen((path), (flags))
+#  define NLINK_DLSYM(h, sym)       nlink_dlsym((h), (sym))
+#  define NLINK_DLCLOSE(h)          nlink_dlclose(h)
+#  define NLINK_DLERROR()           nlink_dlerror()
+#  ifndef RTLD_LAZY
+#    define RTLD_LAZY 0
+#  endif
+#else
+#  include <dlfcn.h>
+#  define NLINK_DLOPEN(path, flags) dlopen((path), (flags))
+#  define NLINK_DLSYM(h, sym)       dlsym((h), (sym))
+#  define NLINK_DLCLOSE(h)          dlclose(h)
+#  define NLINK_DLERROR()           dlerror()
+#endif
 
 // Global handle registry instance
 static struct NexusHandleRegistry* g_handle_registry = NULL;
@@ -36,8 +70,12 @@ struct NexusHandleRegistry* nexus_init_handle_registry(void) {
     registry->count = 0;
     registry->capacity = 0;
     
-    // Initialize mutex
+    // Initialize mutex (cross-platform via NLINK_MUTEX_TYPE defined in nexus_loader.h)
+#ifdef _WIN32
+    InitializeCriticalSection(&registry->mutex);
+#else
     pthread_mutex_init(&registry->mutex, NULL);
+#endif
     
     g_handle_registry = registry;
     return registry;
@@ -133,17 +171,17 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      void* handle = nexus_find_component_handle(registry, path);
      if (!handle) {
          // Load the component
-         handle = dlopen(path, RTLD_LAZY);
+         handle = NLINK_DLOPEN(path, RTLD_LAZY);
          if (!handle) {
-             nexus_log(ctx, NEXUS_LOG_ERROR, "Failed to load component: %s", dlerror());
+             nexus_log(ctx, NEXUS_LOG_ERROR, "Failed to load component: %s", NLINK_DLERROR());
              return NULL;
          }
          
          // Register the handle
          NexusResult result = nexus_register_component_handle(registry, handle, path, component_id);
          if (result != NEXUS_SUCCESS) {
-             dlclose(handle);
-             nexus_log(ctx, NEXUS_LOG_ERROR, "Failed to register component handle: %s", 
+             NLINK_DLCLOSE(handle);
+             nexus_log(ctx, NEXUS_LOG_ERROR, "Failed to register component handle: %s",
                       nexus_result_to_string(result));
              return NULL;
          }
@@ -172,7 +210,7 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      }
      
      // Load the initialization function
-     NexusComponentInit init_func = (NexusComponentInit)dlsym(handle, "nexus_component_init");
+     NexusComponentInit init_func = (NexusComponentInit)NLINK_DLSYM(handle, "nexus_component_init");
      if (init_func) {
          // Call the initialization function
          if (!init_func(ctx)) {
@@ -203,7 +241,7 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      }
      
      // Load the cleanup function
-     NexusComponentCleanup cleanup_func = (NexusComponentCleanup)dlsym(component->handle, 
+     NexusComponentCleanup cleanup_func = (NexusComponentCleanup)NLINK_DLSYM(component->handle,
                                                                      "nexus_component_cleanup");
      if (cleanup_func) {
          // Call the cleanup function
@@ -227,7 +265,7 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      }
      
      // Use dlsym to find the symbol
-     void* symbol_address = dlsym(component->handle, symbol_name);
+     void* symbol_address = NLINK_DLSYM(component->handle, symbol_name);
      if (!symbol_address) {
          nexus_log(ctx, NEXUS_LOG_DEBUG, "Symbol not found in component: %s", symbol_name);
          return NULL;
@@ -250,7 +288,7 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      
      // Close all handles
      for (size_t i = 0; i < registry->count; i++) {
-         dlclose(registry->handles[i]);
+         NLINK_DLCLOSE(registry->handles[i]);
          free(registry->paths[i]);
          free(registry->components[i]);
      }
@@ -260,7 +298,11 @@ void* nexus_find_component_handle(struct NexusHandleRegistry* registry, const ch
      free(registry->components);
      
      // Destroy mutex
+#ifdef _WIN32
+     DeleteCriticalSection(&registry->mutex);
+#else
      pthread_mutex_destroy(&registry->mutex);
+#endif
      
      if (registry == g_handle_registry) {
          g_handle_registry = NULL;

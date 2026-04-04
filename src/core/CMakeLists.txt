@@ -43,6 +43,33 @@ foreach(COMPONENT_DIR ${CORE_COMPONENT_DIRS})
   add_subdirectory(${COMPONENT_DIR})
 endforeach()
 
+# Aggregate INTERFACE target so the root CMakeLists can link against one name.
+# Uses generator-expression guards so missing optional components are silently skipped.
+add_library(nlink_core_static INTERFACE)
+target_link_libraries(nlink_core_static INTERFACE
+    $<$<TARGET_EXISTS:nlink_common_static>:nlink_common_static>
+    $<$<TARGET_EXISTS:nlink_config>:nlink_config>
+    $<$<TARGET_EXISTS:nlink_parser>:nlink_parser>
+    $<$<TARGET_EXISTS:nlink_pattern_matching>:nlink_pattern_matching>
+    $<$<TARGET_EXISTS:nlink_tactic>:nlink_tactic>
+    $<$<TARGET_EXISTS:nlink_token_type>:nlink_token_type>
+    $<$<TARGET_EXISTS:nlink_token_value>:nlink_token_value>
+    $<$<TARGET_EXISTS:nlink_tokenizer>:nlink_tokenizer>
+    $<$<TARGET_EXISTS:nlink_minimizer>:nlink_minimizer>
+    $<$<TARGET_EXISTS:nlink_pipeline>:nlink_pipeline>
+    $<$<TARGET_EXISTS:nlink_symbols>:nlink_symbols>
+    $<$<TARGET_EXISTS:nlink_versioning>:nlink_versioning>
+    $<$<TARGET_EXISTS:nlink_mpsystem>:nlink_mpsystem>
+    $<$<TARGET_EXISTS:nlink_spsystem>:nlink_spsystem>
+)
+
+# Export the aggregate INTERFACE target so installed consumers can resolve it.
+# nlink_cli_static (which IS in nlink-targets) links against this target, so
+# CMake requires it to be in the same export set.
+install(TARGETS nlink_core_static
+    EXPORT nlink-targets
+)
+
 # Create unified core library
 add_custom_target(nlink_unified_core ALL
   DEPENDS nlink_core_components

@@ -4,7 +4,7 @@
  * @copyright Copyright © 2025 OBINexus Computing
  */
 
-#include "tactic.h"
+#include "nlink/core/tactic/tactic.h"
 #include <stdlib.h>
 #include <string.h>
 

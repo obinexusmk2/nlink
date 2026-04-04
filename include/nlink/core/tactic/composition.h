@@ -11,6 +11,7 @@
 #define NLINK_TACTIC_COMPOSITION_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 /**
  * Function pointer type for transformation functions

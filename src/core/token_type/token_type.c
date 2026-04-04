@@ -5,6 +5,7 @@
  */
 
 #include "nlink/core/token/token_type.h"
+#include "nlink/core/token/token_value.h"
 #include "nlink/core/common/nexus_error.h"
 #include "nlink/core/common/nexus_result.h"
 #include <stdlib.h>

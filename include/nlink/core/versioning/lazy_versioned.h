@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <pthread.h>
+#ifndef _WIN32
+#  include <pthread.h>
+#endif
 #include <stdbool.h>
 #include "nexus_lazy_versioned.h"
 #include "nlink/core/common/nexus_core.h"

@@ -73,12 +73,19 @@ if(NLINK_USE_CLI)
   add_subdirectory("src/cli")
 endif()
 
+# Platform-specific link libraries: pthread and dl are POSIX-only
+if(WIN32)
+  set(_NLINK_PLATFORM_LIBS "")
+else()
+  set(_NLINK_PLATFORM_LIBS pthread dl)
+endif()
+
 # Main executable
 nlink_define_main_executable(
   NAME "nlink"
   VERSION "${PROJECT_VERSION}"
   SOURCES "${NLINK_SRC_DIR}/cli/main.c"
-  DEPENDENCIES nlink_core_static nlink_cli_static pthread dl
+  DEPENDENCIES nlink_core_static nlink_cli_static ${_NLINK_PLATFORM_LIBS}
 )
 
 # Generate unified header

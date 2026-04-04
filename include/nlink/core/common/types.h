@@ -105,7 +105,13 @@
          NEXUS_DEPENDENCY_ERROR = 108,  /**< Dependency resolution failed */
          NEXUS_VERSION_CONFLICT = 109,  /**< Version conflict detected */
          NEXUS_SYMBOL_ERROR = 110,      /**< Symbol resolution error */
- 
+         NEXUS_ERROR_NOT_IMPLEMENTED = 111, /**< Feature not yet implemented */
+         NEXUS_ERROR_FILE_NOT_FOUND  = 112, /**< File could not be found */
+
+         /* Convenience aliases matching the NEXUS_ERROR_* naming convention */
+         NEXUS_ERROR_INVALID_OPERATION = NEXUS_INVALID_OPERATION, /**< alias */
+         NEXUS_ERROR_ALREADY_EXISTS    = NEXUS_ALREADY_EXISTS,    /**< alias */
+
          /* Component-specific errors (1000+) */
          NEXUS_ERROR_INVALID_ARGUMENT = 1000,  /**< Invalid argument for minimizer */
          NEXUS_ERROR_OUT_OF_MEMORY = 1001,     /**< Memory allocation failed in minimizer */

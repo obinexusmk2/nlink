@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find C:/Users/OBINexus/Projects/nlink/build -name nlink* -type f)"
+      "Bash(find C:/Users/OBINexus/Projects/nlink/build -name nlink* -type f)",
+      "Bash(chmod +x \"C:/Users/OBINexus/www/nlink/build-linux.sh\")",
+      "Bash(find /c/Users/OBINexus/www/nlink/src -type f \\\\\\( -name \"*.c\" -o -name \"*.h\" \\\\\\) -exec grep '#include' {} +)"
     ]
   }
 }

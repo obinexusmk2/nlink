@@ -66,20 +66,20 @@ if(BUILD_SHARED_LIBS)
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
   )
   
-  # Link with necessary libraries
-  target_link_libraries(nlink_cli_shared
-    nlink_core_shared
-    dl
-    pthread
-  )
+  # Link with necessary libraries (dl/pthread are POSIX-only)
+  if(WIN32)
+    target_link_libraries(nlink_cli_shared nlink_core_shared)
+  else()
+    target_link_libraries(nlink_cli_shared nlink_core_shared dl pthread)
+  endif()
 endif()
 
-# Link static library with dependencies
-target_link_libraries(nlink_cli_static
-  nlink_core_static
-  dl
-  pthread
-)
+# Link static library with dependencies (dl/pthread are POSIX-only)
+if(WIN32)
+  target_link_libraries(nlink_cli_static nlink_core_static)
+else()
+  target_link_libraries(nlink_cli_static nlink_core_static dl pthread)
+endif()
 
 # Add commands subdirectory if it has a CMakeLists.txt
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/commands/CMakeLists.txt")
