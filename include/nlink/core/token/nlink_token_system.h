@@ -10,10 +10,11 @@
 #ifndef NLINK_TOKEN_SYSTEM_H
 #define NLINK_TOKEN_SYSTEM_H
 
-#include "token.h"
+#include "token_structure.h"
 #include "token_type.h"
-#include "../type/type.h"
-#include "../tactic/tactic.h"
+#include "token_value.h"
+#include "type.h"
+#include "nlink/core/tactic/tactic.h"
 
 /**
  * Token system initialization status

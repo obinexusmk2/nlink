@@ -117,7 +117,14 @@
          NEXUS_ERROR_OUT_OF_MEMORY = 1001,     /**< Memory allocation failed in minimizer */
          NEXUS_ERROR_INVALID_STATE = 1002,     /**< Invalid state for operation */
          NEXUS_ERROR_INVALID_REFERENCE = 1003, /**< Invalid reference provided */
-         NEXUS_ERROR_VALIDATION_FAILED = 1004  /**< Validation failed */
+         NEXUS_ERROR_VALIDATION_FAILED = 1004,  /**< Validation failed */
+
+         /* System/pipeline-specific errors (2000+) */
+         NEXUS_DEPENDENCY_CYCLE = 2000,          /**< Circular dependency detected */
+         NEXUS_COMPONENT_NOT_INITIALIZED = 2001, /**< Component not initialized */
+         NEXUS_SYMBOL_NOT_FOUND = 2002,          /**< Symbol not found in component */
+         NEXUS_COMPONENT_LOAD_FAILED = 2003,     /**< Component failed to load */
+         NEXUS_DUPLICATE_COMPONENT = 2004        /**< Component already registered */
      } NexusResult;
 
      /** Alias used by the error/exception subsystem */

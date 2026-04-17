@@ -71,10 +71,12 @@ if(BUILD_SHARED_LIBS)
   )
   
   # Link dependencies for shared library
-  target_link_libraries(nlink_${COMPONENT_NAME}_shared
-    pthread
-    dl
-  )
+  if(NOT WIN32)
+    target_link_libraries(nlink_${COMPONENT_NAME}_shared
+      pthread
+      dl
+    )
+  endif()
   
   # Register this shared library
   set_property(GLOBAL APPEND PROPERTY NLINK_SHARED_LIBRARIES nlink_${COMPONENT_NAME}_shared)

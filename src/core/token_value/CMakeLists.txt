@@ -7,9 +7,9 @@ get_filename_component(MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 # Define source files (only files that exist in this directory)
 # token.c / token_type.c live in the token_type component, not here
 set(MODULE_SOURCES
-    nlink_token_system.c
     token_value.c
 )
+# nlink_token_system.c excluded: references tokenizer APIs not yet implemented
 
 # Define header files
 set(MODULE_HEADERS
@@ -28,6 +28,7 @@ nlink_build_component(
 
 # Define include directories
 target_include_directories(nlink_${MODULE_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/include/nlink/core/token
     ${CMAKE_CURRENT_SOURCE_DIR}/../token_type
     ${CMAKE_CURRENT_SOURCE_DIR}/../tactic
     ${CMAKE_CURRENT_SOURCE_DIR}/../tokenizer

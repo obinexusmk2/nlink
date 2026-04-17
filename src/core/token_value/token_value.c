@@ -498,46 +498,6 @@ nlink_token_program* nlink_token_create_program(const char* module_name,
     return token;
 }
 
-nlink_token_literal* nlink_token_create_literal(uint32_t value_type, 
-                                             const void* value,
-                                             size_t line, size_t column) {
-    nlink_token_literal* token = (nlink_token_literal*)nlink_token_create(
-        NLINK_TYPE_LITERAL, NULL, line, column);
-    
-    if (token == NULL) {
-        return NULL;
-    }
-    
-    token->value_type = value_type;
-    
-    // Initialize value based on type
-    if (value != NULL) {
-        switch (value_type) {
-            case 1:  // Integer
-                token->int_value = *(const int64_t*)value;
-                break;
-            case 2:  // Float
-                token->float_value = *(const double*)value;
-                break;
-            case 3:  // String
-                token->string_value = strdup((const char*)value);
-                if (token->string_value == NULL) {
-                    nlink_token_free((nlink_token_base*)token);
-                    return NULL;
-                }
-                break;
-            case 4:  // Boolean
-                token->bool_value = *(const bool*)value;
-                break;
-            default:  // Complex or unknown type
-                token->complex_value = NULL;
-                break;
-        }
-    }
-    
-    return token;
-}
-
 nexus_result nlink_token_create_literal_with_result(uint32_t value_type, 
                                                   const void* value,
                                                   size_t line, size_t column,

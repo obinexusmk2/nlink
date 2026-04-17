@@ -36,8 +36,10 @@ target_link_libraries(nexus_spsystem
         nexus_common
     PRIVATE
         ${CMAKE_DL_LIBS}  # For dynamic loading
-        pthread  # For thread safety
 )
+if(NOT WIN32)
+  target_link_libraries(nexus_spsystem PRIVATE pthread)
+endif()
 
 # Set properties for library
 set_target_properties(nexus_spsystem PROPERTIES

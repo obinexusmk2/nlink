@@ -8,14 +8,29 @@
  * Copyright © 2025 OBINexus Computing
  */
 
- #include "nlink/spsystem/sps_pipeline.h"
- #include "nlink/spsystem/sps_dependency.h"
- #include "nlink/spsystem/sps_lifecycle.h"
+ #include "nlink/core/spsystem/sps_pipeline.h"
+ #include "nlink/core/spsystem/sps_dependency.h"
+ #include "nlink/core/spsystem/sps_lifecycle.h"
  #include "nlink/core/common/nexus_core.h"
  #include "nlink/core/common/nexus_loader.h"
  #include <stdlib.h>
  #include <string.h>
  #include <time.h>
+#ifdef _WIN32
+#  include <windows.h>
+static double sps_get_time_ms(void) {
+    LARGE_INTEGER freq, count;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    return (double)(count.QuadPart * 1000) / (double)freq.QuadPart;
+}
+#else
+static double sps_get_time_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000.0 + ts.tv_nsec / 1000000.0;
+}
+#endif
  
  /* Forward declarations for internal functions */
  static NexusResult load_components(NexusContext* ctx, NexusPipeline* pipeline);
@@ -323,18 +338,13 @@
      nexus_log(ctx, NEXUS_LOG_DEBUG, "Executing component '%s'", component->component_id);
      
      // Record start time
-     struct timespec start, end;
-     clock_gettime(CLOCK_MONOTONIC, &start);
-     
+     double start_ms = sps_get_time_ms();
+
      // Execute the component
      NexusResult result = sps_component_execute(ctx, component, input, output);
-     
-     // Record end time
-     clock_gettime(CLOCK_MONOTONIC, &end);
-     
+
      // Calculate execution time
-     double elapsed_ms = (end.tv_sec - start.tv_sec) * 1000.0 + 
-                        (end.tv_nsec - start.tv_nsec) / 1000000.0;
+     double elapsed_ms = sps_get_time_ms() - start_ms;
      
      component->last_execution_time_ms = elapsed_ms;
      component->last_result = result;
@@ -376,9 +386,8 @@
      }
      
      // Record start time
-     struct timespec start, end;
-     clock_gettime(CLOCK_MONOTONIC, &start);
-     
+     double pipeline_start_ms = sps_get_time_ms();
+
      // Create intermediate streams for component communication
      NexusDataStream** streams = NULL;
      
@@ -470,14 +479,10 @@
          }
      }
      
-     // Record end time
-     clock_gettime(CLOCK_MONOTONIC, &end);
-     
      // Calculate execution time
-     double elapsed_ms = (end.tv_sec - start.tv_sec) * 1000.0 + 
-                       (end.tv_nsec - start.tv_nsec) / 1000000.0;
-     
-     nexus_log(ctx, NEXUS_LOG_INFO, 
+     double elapsed_ms = sps_get_time_ms() - pipeline_start_ms;
+
+     nexus_log(ctx, NEXUS_LOG_INFO,
               "Pipeline executed in %.2f ms", elapsed_ms);
      
      // Clean up intermediate streams

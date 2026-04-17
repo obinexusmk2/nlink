@@ -2,6 +2,13 @@
 // Implementation of enhanced metadata system with version support
 // Author: Implementation Team
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include "nlink/core/metadata/enhanced_metadata.h"
+#include "nlink/core/common/nexus_json.h"
+
 #define NEXUS_JSON_EXTERN
 
 // Helper function to parse a symbol definition from JSON

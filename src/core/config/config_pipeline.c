@@ -22,7 +22,7 @@ typedef struct {
     size_t excluded_count;
 } PatternResolutionState;
 
-NexusResult config_tokenize_stage(NexusContext* ctx, NexusBuffer* buffer) {
+nexus_result config_tokenize_stage(NexusContext* ctx, NexusBuffer* buffer) {
     if (!buffer || !buffer->data) {
         nexus_error* error = nexus_error_create(
             NEXUS_ERROR_INVALID_ARGUMENT,
@@ -63,7 +63,7 @@ NexusResult config_tokenize_stage(NexusContext* ctx, NexusBuffer* buffer) {
     return nexus_success(root, NULL);
 }
 
-NexusResult config_validate_stage(NexusContext* ctx, NexusBuffer* buffer) {
+nexus_result config_validate_stage(NexusContext* ctx, NexusBuffer* buffer) {
     if (!buffer || !buffer->data) {
         nexus_error* error = nexus_error_create(
             NEXUS_ERROR_INVALID_ARGUMENT,
@@ -80,7 +80,7 @@ NexusResult config_validate_stage(NexusContext* ctx, NexusBuffer* buffer) {
     return nlink_validate_config_tree(root, ctx);
 }
 
-NexusResult config_resolve_patterns_stage(NexusContext* ctx, NexusBuffer* buffer) {
+nexus_result config_resolve_patterns_stage(NexusContext* ctx, NexusBuffer* buffer) {
     if (!buffer || !buffer->data) {
         nexus_error* error = nexus_error_create(
             NEXUS_ERROR_INVALID_ARGUMENT,
@@ -157,7 +157,7 @@ PipelineStage create_default_config_pipeline(void) {
     return complete_pipeline;
 }
 
-NexusResult process_config_file(
+nexus_result process_config_file(
     const char* filename,
     NexusContext* ctx,
     nlink_token_config_section** out_root
@@ -213,7 +213,7 @@ NexusResult process_config_file(
     PipelineStage pipeline = create_default_config_pipeline();
     
     // Process the buffer
-    NexusResult result = pipeline(ctx, &buffer);
+    nexus_result result = pipeline(ctx, &buffer);
     free(content);  // We don't need the content anymore
     
     if (result.status != NEXUS_STATUS_SUCCESS) {

@@ -10,7 +10,7 @@
  #include <string.h>
  #include <stdarg.h>
  
- #include "nlink/core/nlink.h"
+ #include "nlink/core/versioning/nlink.h"
  #include "nlink/core/common/result.h"
  #include "nlink/core/common/types.h"
  #include "nlink/core/minimizer/nexus_minimizer.h"

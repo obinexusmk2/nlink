@@ -80,4 +80,23 @@ extern bool nexus_json_write_file(const NexusJsonValue* value, const char* filen
 #endif
 
 
+/* Compatibility aliases for older API used by sps_config and similar callers */
+typedef NexusJsonValue NexusJsonDocument;
+typedef NexusJsonValue NexusJsonObject;
+typedef NexusJsonValue NexusJsonArray;
+
+#define nexus_json_create_object()         nexus_json_object()
+#define nexus_json_create_array()          nexus_json_array()
+#define nexus_json_array_append(arr, item) nexus_json_array_add((arr), (item))
+#define nexus_json_set_string(obj, key, val) \
+    nexus_json_object_add((obj), (key), nexus_json_string(val))
+#define nexus_json_set_bool(obj, key, val) \
+    nexus_json_object_add((obj), (key), nexus_json_bool(val))
+#define nexus_json_set_array(obj, key, arr) \
+    nexus_json_object_add((obj), (key), (arr))
+
+static inline NexusResult nexus_json_save_file(const NexusJsonValue* value, const char* path) {
+    return nexus_json_write_file(value, path, true) ? NEXUS_SUCCESS : NEXUS_IO_ERROR;
+}
+
 #endif // NEXUS_JSON_H

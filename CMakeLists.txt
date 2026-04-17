@@ -22,7 +22,11 @@ nlink_init_hook_system(
 
 # Define options
 option(BUILD_TESTING "Build tests" ON)
-option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+if(WIN32)
+  option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+else()
+  option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+endif()
 option(ENABLE_COVERAGE "Enable code coverage" OFF)
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
 option(NLINK_USE_CLI "Build with CLI support" ON)

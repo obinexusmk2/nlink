@@ -31,7 +31,7 @@ target_include_directories(nexus_versioning
 # Set dependencies
 target_link_libraries(nexus_versioning
     PUBLIC
-        nexus_common
+        nlink_common_static
 )
 
 # Set properties

@@ -22,7 +22,7 @@ extern "C" {
  * @param buffer Buffer containing input/output data
  * @return NexusResult Result of stage execution
  */
-typedef NexusResult (*PipelineStage)(NexusContext* ctx, NexusBuffer* buffer);
+typedef nexus_result (*PipelineStage)(NexusContext* ctx, NexusBuffer* buffer);
 
 /**
  * @brief Stateful pipeline stage

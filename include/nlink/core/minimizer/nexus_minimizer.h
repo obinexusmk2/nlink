@@ -150,17 +150,8 @@
      NexusMinimizerLevel level,
      NexusMinimizationMetrics* metrics
  );
- /**
-  * @brief Clean up the minimizer subsystem
-  * 
-  * This function cleans up any resources allocated by the minimizer subsystem.
-  * 
-  * @param ctx The NexusLink context
-  */
- void nexus_minimizer_cleanup(NexusContext* ctx);
- 
  #ifdef __cplusplus
  }
  #endif
- 
+
  #endif /* NLINK_CORE_MINIMIZER_NEXUS_MINIMIZER_H */

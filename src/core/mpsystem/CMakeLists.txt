@@ -33,7 +33,7 @@ target_include_directories(nlink_mpsystem
 # Link dependencies
 target_link_libraries(nlink_mpsystem
 	PUBLIC
-		nlink_core_common
+		nlink_common_static
 )
 
 # Installation rules

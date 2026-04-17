@@ -14,6 +14,7 @@
 #include "nlink/core/common/nexus_loader.h"
 #include "nlink/core/common/types.h"
 #include "nlink/core/common/result.h"
+#include "nlink/core/versioning/semver.h"
 
 
 // Enhanced dependency structure with version requirements

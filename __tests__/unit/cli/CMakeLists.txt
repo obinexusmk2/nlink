@@ -31,7 +31,7 @@ foreach(test_src ${CLI_TEST_SOURCES})
             nexus_common
             nexus_minimizer
             ${CHECK_LIBRARIES}
-            pthread
+            $<$<NOT:$<PLATFORM_ID:Windows>>:pthread>
     )
     
     # Add include directories

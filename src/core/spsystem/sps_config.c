@@ -8,7 +8,7 @@
  * Copyright © 2025 OBINexus Computing
  */
 
- #include "nlink/spsystem/sps_config.h"
+ #include "nlink/core/spsystem/sps_config.h"
  #include "nlink/core/common/nexus_json.h"
  #include "nlink/core/common/nexus_core.h"
  #include <string.h>

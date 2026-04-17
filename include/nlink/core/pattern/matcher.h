@@ -180,7 +180,7 @@ typedef enum {
   * @param matcher Pattern matcher
   * @return NlinkPatternFlags Pattern flags
   */
- NlinkPatternFlags* nlink_pattern_get_flags(const NlinkPatternMatcher* matcher);
+ NlinkPatternFlags nlink_pattern_get_flags(const NlinkPatternMatcher* matcher);
  
  /**
   * @brief Check if the pattern is a regex pattern

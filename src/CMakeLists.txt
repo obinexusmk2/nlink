@@ -128,12 +128,12 @@ if(NEXUS_BUILD_MPS)
 endif()
 
 # Link all components
-target_link_libraries(nlink 
+target_link_libraries(nlink
     PUBLIC ${NLINK_COMPONENTS}
-    PRIVATE
-        dl
-        pthread
 )
+if(NOT WIN32)
+  target_link_libraries(nlink PRIVATE dl pthread)
+endif()
 
 # Define the CLI executable
 add_executable(nlink_cli src/cli/main.c)

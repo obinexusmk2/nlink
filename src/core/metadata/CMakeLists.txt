@@ -14,7 +14,7 @@ target_include_directories(nexus_metadata
 # Link with required libraries
 target_link_libraries(nexus_metadata
 	PUBLIC
-		nexus_common
+		nlink_common_static
 )
 
 # Set compile definitions based on global options

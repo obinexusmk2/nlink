@@ -11,7 +11,11 @@
 #include "nlink/core/pattern/matcher.h"
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
+#ifdef _WIN32
+#  define strcasecmp _stricmp
+#else
+#  include <strings.h>
+#endif
 #include <ctype.h>
 #include "nlink/core/pattern/regex_compat.h"
  

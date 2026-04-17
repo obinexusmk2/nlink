@@ -46,7 +46,7 @@ static bool has_duplicate_properties(nlink_token_config_section* section) {
     return false;
 }
 
-NexusResult nlink_validate_config_key(const char* key) {
+nexus_result nlink_validate_config_key(const char* key) {
     if (!is_valid_key_name(key)) {
         nexus_error* error = nexus_error_create(
             NEXUS_ERROR_VALIDATION_FAILED,
@@ -59,7 +59,7 @@ NexusResult nlink_validate_config_key(const char* key) {
     return nexus_success(NULL, NULL);
 }
 
-NexusResult nlink_validate_config_property(nlink_token_config_property* property,
+nexus_result nlink_validate_config_property(nlink_token_config_property* property,
                                           NexusContext* context) {
     if (!property) {
         nexus_error* error = nexus_error_create(
@@ -71,7 +71,7 @@ NexusResult nlink_validate_config_property(nlink_token_config_property* property
     }
     
     // Validate key name
-    NexusResult result = nlink_validate_config_key(property->key);
+    nexus_result result = nlink_validate_config_key(property->key);
     RETURN_IF_ERROR(result);
     
     // Check if the property is required but has no value
@@ -87,7 +87,7 @@ NexusResult nlink_validate_config_property(nlink_token_config_property* property
     return nexus_success(property, NULL);
 }
 
-NexusResult nlink_validate_config_section(nlink_token_config_section* section, 
+nexus_result nlink_validate_config_section(nlink_token_config_section* section, 
                                          NexusContext* context) {
     if (!section) {
         nexus_error* error = nexus_error_create(
@@ -123,14 +123,14 @@ NexusResult nlink_validate_config_section(nlink_token_config_section* section,
         nlink_token_config_property* property = 
             (nlink_token_config_property*)section->properties[i];
             
-        NexusResult result = nlink_validate_config_property(property, context);
+        nexus_result result = nlink_validate_config_property(property, context);
         RETURN_IF_ERROR(result);
     }
     
     return nexus_success(section, NULL);
 }
 
-NexusResult nlink_validate_config_tree(nlink_token_config_section* root,
+nexus_result nlink_validate_config_tree(nlink_token_config_section* root,
                                       NexusContext* context) {
     if (!root) {
         nexus_error* error = nexus_error_create(
@@ -142,7 +142,7 @@ NexusResult nlink_validate_config_tree(nlink_token_config_section* root,
     }
     
     // Validate the root section itself
-    NexusResult result = nlink_validate_config_section(root, context);
+    nexus_result result = nlink_validate_config_section(root, context);
     RETURN_IF_ERROR(result);
     
     // Create a set of section names to track uniqueness

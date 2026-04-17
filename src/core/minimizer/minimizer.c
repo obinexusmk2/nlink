@@ -8,7 +8,14 @@
 #include "nlink/core/minimizer/nexus_minimizer.h"
 #include "nlink/core/minimizer/okpala_automaton.h"
 #include <sys/stat.h>
+#include <stdio.h>
 #include <time.h>
+#ifdef _WIN32
+#  include <windows.h>
+#endif
+
+/* Forward declaration to avoid implicit-int warning on MSVC */
+void nexus_print_minimization_metrics(const NexusMinimizationMetrics* metrics);
 
 
 
@@ -47,9 +54,16 @@
  
  // Helper function to measure time
  static double get_current_time_ms(void) {
+#ifdef _WIN32
+     LARGE_INTEGER freq, count;
+     QueryPerformanceFrequency(&freq);
+     QueryPerformanceCounter(&count);
+     return (double)(count.QuadPart * 1000) / (double)freq.QuadPart;
+#else
      struct timespec ts;
      clock_gettime(CLOCK_MONOTONIC, &ts);
      return (ts.tv_sec * 1000.0) + (ts.tv_nsec / 1000000.0);
+#endif
  }
  
  // Create automaton from component

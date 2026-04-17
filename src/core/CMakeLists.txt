@@ -76,7 +76,8 @@ add_custom_target(nlink_unified_core ALL
   COMMENT "Building unified core library"
 )
 
-# Create static unified library
+# Create static unified library (Unix/GCC only - uses ar crs)
+if(NOT WIN32)
 get_property(STATIC_LIBS GLOBAL PROPERTY NLINK_STATIC_LIBRARIES)
 if(STATIC_LIBS)
   add_library(nlink_core STATIC IMPORTED GLOBAL)
@@ -108,8 +109,10 @@ if(STATIC_LIBS)
   
   add_dependencies(nlink_unified_core nlink_unified_static)
 endif()
+endif() # NOT WIN32
 
-# Create shared unified library
+# Create shared unified library (GCC/Linux only - uses .so and -Wl,--whole-archive)
+if(NOT WIN32)
 get_property(SHARED_LIBS GLOBAL PROPERTY NLINK_SHARED_LIBRARIES)
 if(SHARED_LIBS)
   add_library(nlink_core_shared SHARED IMPORTED GLOBAL)
@@ -144,6 +147,7 @@ if(SHARED_LIBS)
   
   add_dependencies(nlink_unified_core nlink_unified_shared)
 endif()
+endif() # NOT WIN32
 
 # Add the main NexusLink source file
 add_library(nlink_main_objects OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/nlink.c)

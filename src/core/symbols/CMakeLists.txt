@@ -28,7 +28,7 @@ target_include_directories(nexus_symbols
 # Link with necessary libraries
 target_link_libraries(nexus_symbols
     PUBLIC
-        nexus_common
+        nlink_common_static
 )
 
 # Add the library to the core components list

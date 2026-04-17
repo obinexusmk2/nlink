@@ -6,6 +6,9 @@
 #include "nlink/core/versioning/nexus_lazy_versioned.h"
 #include "nlink/core/versioning/nexus_version.h"
 #include "nlink/core/versioning/lazy_versioned.h"
+#ifdef _WIN32
+#  include <windows.h>
+#endif
 
 
 // Enhanced implementation of nexus_check_unused_versioned_libraries
@@ -27,7 +30,11 @@ void nexus_check_unused_versioned_libraries(VersionedSymbolRegistry* registry) {
     }
     
     // Lock the handle registry for thread safety
+#ifdef _WIN32
+    EnterCriticalSection(&nexus_handle_registry->mutex);
+#else
     pthread_mutex_lock(&nexus_handle_registry->mutex);
+#endif
     
     printf("Checking for unused libraries in versioned context...\n");
     
@@ -76,7 +83,11 @@ void nexus_check_unused_versioned_libraries(VersionedSymbolRegistry* registry) {
                 // Memory allocation failure
                 free(libs_to_unload);
                 free(paths_to_unload);
+#ifdef _WIN32
+                LeaveCriticalSection(&nexus_handle_registry->mutex);
+#else
                 pthread_mutex_unlock(&nexus_handle_registry->mutex);
+#endif
                 return;
             }
             
@@ -124,7 +135,11 @@ void nexus_check_unused_versioned_libraries(VersionedSymbolRegistry* registry) {
                 }
                 
                 // Unload the library
+#ifdef _WIN32
+                FreeLibrary((HMODULE)handle);
+#else
                 dlclose(handle);
+#endif
                 
                 // Remove from handle registry by swapping with the last element
                 free(nexus_handle_registry->paths[registry_index]);
@@ -164,8 +179,12 @@ void nexus_check_unused_versioned_libraries(VersionedSymbolRegistry* registry) {
     free(libs_to_unload);
     free(paths_to_unload);
     
+#ifdef _WIN32
+    LeaveCriticalSection(&nexus_handle_registry->mutex);
+#else
     pthread_mutex_unlock(&nexus_handle_registry->mutex);
-    
+#endif
+
     printf("Library unloading complete. %zu libraries remain loaded.\n", 
            nexus_handle_registry->count);
 }
