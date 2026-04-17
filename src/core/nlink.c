@@ -19,6 +19,9 @@
  
  // Forward declarations for functions not fully defined in headers
  extern NexusResult nexus_symbol_registry_initialize(NexusContext* ctx);
+ extern void        nexus_symbol_registry_cleanup(NexusContext* ctx);
+ extern NexusResult nexus_version_initialize(NexusContext* ctx);
+ extern void        nexus_version_cleanup(NexusContext* ctx);
  extern NexusComponent* nexus_load_component(NexusContext* ctx, const char* path, const char* id);
  
  // Global context
@@ -194,34 +197,9 @@
      return nexus_minimize_component(g_global_context, path, config, NULL);
  }
  
- NexusCommand* nlink_get_load_command(void) {
-     if (!load_command) {
-         // TODO: Initialize load command
-         load_command = nexus_command_create("load", "Load a component", NULL);
-     }
-     return load_command;
- }
- 
- NexusCommand* nlink_get_version_command(void) {
-     if (!version_command) {
-         // TODO: Initialize version command
-         version_command = nexus_command_create("version", "Display version information", NULL);
-     }
-     return version_command;
- }
- 
  NexusCommand* nlink_get_minimal_command(void) {
      if (!minimal_command) {
-         // TODO: Initialize minimal command
          minimal_command = nexus_command_create("minimal", "Run in minimal mode", NULL);
      }
      return minimal_command;
- }
- 
- NexusCommand* nlink_get_minimize_command(void) {
-     if (!minimize_command) {
-         // TODO: Initialize minimize command
-         minimize_command = nexus_command_create("minimize", "Minimize a component", NULL);
-     }
-     return minimize_command;
  }

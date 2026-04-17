@@ -34,6 +34,9 @@ target_link_libraries(nexus_versioning
         nlink_common_static
 )
 
+# Alias so nlink_core_static INTERFACE can find this target
+add_library(nlink_versioning ALIAS nexus_versioning)
+
 # Set properties
 set_target_properties(nexus_versioning PROPERTIES
     C_STANDARD 11

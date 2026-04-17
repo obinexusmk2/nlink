@@ -62,8 +62,10 @@
      }
      
      // Parse input and output formats
-     config->input_format = strdup(nexus_json_get_string(doc, "input_format") ?: "binary");
-     config->output_format = strdup(nexus_json_get_string(doc, "output_format") ?: "binary");
+     { const char* _if = nexus_json_get_string(doc, "input_format");
+       config->input_format = strdup(_if ? _if : "binary"); }
+     { const char* _of = nexus_json_get_string(doc, "output_format");
+       config->output_format = strdup(_of ? _of : "binary"); }
      
      // Parse allow_partial_processing flag
      config->allow_partial_processing = nexus_json_get_bool(doc, "allow_partial_processing", false);
@@ -121,7 +123,7 @@
                  NexusJsonObject* comp_config_obj = nexus_json_get_object(comp_obj, "config");
                  if (comp_config_obj && config->component_config_creator) {
                      // Convert to JSON string
-                     char* config_json = nexus_json_to_string(comp_config_obj);
+                     char* config_json = nexus_json_to_string(comp_config_obj, false);
                      if (config_json) {
                          // Create component-specific config using provided creator function
                          comp_config->component_config = config->component_config_creator(config_json);

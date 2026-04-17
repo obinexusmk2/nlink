@@ -18,7 +18,7 @@
  #include <string.h>
  
  /* Pipeline command global definition */
- static NexusCommand pipeline_command;
+ NexusCommand pipeline_command;
  
  /* Function to simulate data processing for pipeline stage */
  static NexusResult NLINK_ATTR_UNUSED dummy_stage_func(void* input, void* output, void* user_data) {

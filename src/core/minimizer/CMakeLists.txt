@@ -17,13 +17,16 @@ add_library(okpala_minimizer
 
 # Add dependencies
 target_link_libraries(nexus_minimizer
-    PRIVATE nexus_common
+    PRIVATE nlink_common_static
 )
 # Add another dependency to nexus_minimizer if needed
 target_link_libraries(okpala_minimizer
     PRIVATE nexus_minimizer
-    PRIVATE nexus_common
+    PRIVATE nlink_common_static
 )
+
+# Alias so nlink_core_static INTERFACE can find this target
+add_library(nlink_minimizer ALIAS nexus_minimizer)
 
 # Set up include directories for these targets
 target_include_directories(nexus_minimizer

@@ -55,7 +55,7 @@
  
  /**
   * @brief Command implementation for build command
-  * 
+  *
   * @param ctx The NexusLink context
   * @return NexusResult Result code
   */
@@ -63,7 +63,22 @@
      if (!ctx) {
          return NEXUS_INVALID_PARAMETER;
      }
-     
+
      // Placeholder implementation
      return NEXUS_SUCCESS;
+ }
+
+ /**
+  * @brief Initialize the version system (stub)
+  */
+ NexusResult nexus_version_initialize(NexusContext* ctx) {
+     if (!ctx) return NEXUS_INVALID_PARAMETER;
+     return NEXUS_SUCCESS;
+ }
+
+ /**
+  * @brief Clean up the version system (stub)
+  */
+ void nexus_version_cleanup(NexusContext* ctx) {
+     (void)ctx;
  }

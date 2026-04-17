@@ -50,12 +50,14 @@ target_link_libraries(nlink_core_static INTERFACE
     $<$<TARGET_EXISTS:nlink_common_static>:nlink_common_static>
     $<$<TARGET_EXISTS:nlink_config>:nlink_config>
     $<$<TARGET_EXISTS:nlink_parser>:nlink_parser>
+    $<$<TARGET_EXISTS:nlink_pattern>:nlink_pattern>
     $<$<TARGET_EXISTS:nlink_pattern_matching>:nlink_pattern_matching>
     $<$<TARGET_EXISTS:nlink_tactic>:nlink_tactic>
     $<$<TARGET_EXISTS:nlink_token_type>:nlink_token_type>
     $<$<TARGET_EXISTS:nlink_token_value>:nlink_token_value>
     $<$<TARGET_EXISTS:nlink_tokenizer>:nlink_tokenizer>
     $<$<TARGET_EXISTS:nlink_minimizer>:nlink_minimizer>
+    $<$<TARGET_EXISTS:okpala_minimizer>:okpala_minimizer>
     $<$<TARGET_EXISTS:nlink_pipeline>:nlink_pipeline>
     $<$<TARGET_EXISTS:nlink_symbols>:nlink_symbols>
     $<$<TARGET_EXISTS:nlink_versioning>:nlink_versioning>
@@ -159,6 +161,22 @@ target_include_directories(nlink_main_objects PRIVATE
 # Set position independent code for shared library compatibility
 set_property(TARGET nlink_main_objects PROPERTY
     POSITION_INDEPENDENT_CODE ON
+)
+
+# Wrap objects into a linkable static library and add to the core interface
+add_library(nlink_main_static STATIC $<TARGET_OBJECTS:nlink_main_objects>)
+target_include_directories(nlink_main_static
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+target_link_libraries(nlink_core_static INTERFACE nlink_main_static)
+
+# Export nlink_main_static so install(EXPORT nlink-targets) is satisfied
+install(TARGETS nlink_main_static
+    EXPORT nlink-targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT devel
 )
 
 # Configure version header

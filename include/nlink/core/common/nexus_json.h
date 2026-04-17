@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <stdbool.h>
+/* NexusResult / NEXUS_SUCCESS / NEXUS_IO_ERROR come from types.h */
+#include "nlink/core/common/types.h"
 
 // JSON value types
 typedef enum {
@@ -94,6 +94,15 @@ typedef NexusJsonValue NexusJsonArray;
     nexus_json_object_add((obj), (key), nexus_json_bool(val))
 #define nexus_json_set_array(obj, key, arr) \
     nexus_json_object_add((obj), (key), (arr))
+
+/* Additional accessor aliases for sps_config and similar callers */
+#define nexus_json_get_string(obj, key)       nexus_json_object_get_string((obj), (key), NULL)
+#define nexus_json_get_bool(obj, key, dflt)   nexus_json_object_get_bool((obj), (key), (dflt))
+#define nexus_json_get_number(obj, key, dflt) nexus_json_object_get_number((obj), (key), (dflt))
+#define nexus_json_get_array(obj, key)        nexus_json_object_get((obj), (key))
+#define nexus_json_get_object(obj, key)       nexus_json_object_get((obj), (key))
+#define nexus_json_array_size(arr)            ((arr) ? (arr)->data.array.count : (size_t)0)
+#define nexus_json_array_get_object(arr, i)   ((arr) && (i) < (arr)->data.array.count ? (arr)->data.array.items[(i)] : NULL)
 
 static inline NexusResult nexus_json_save_file(const NexusJsonValue* value, const char* path) {
     return nexus_json_write_file(value, path, true) ? NEXUS_SUCCESS : NEXUS_IO_ERROR;

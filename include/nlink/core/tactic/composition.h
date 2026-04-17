@@ -85,7 +85,7 @@ typedef struct nlink_transform_pipeline {
  * @param context Shared context for all transformations
  * @return Newly allocated pipeline structure
  */
-nlink_transform_pipeline* nlink_pipeline_create(size_t initial_capacity, void* context);
+nlink_transform_pipeline* nlink_transform_pipeline_create(size_t initial_capacity, void* context);
 
 /**
  * @brief Add a transformation to the pipeline
@@ -94,7 +94,7 @@ nlink_transform_pipeline* nlink_pipeline_create(size_t initial_capacity, void* c
  * @param transform Transformation to add
  * @return true if successful, false otherwise
  */
-bool nlink_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn transform);
+bool nlink_transform_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn transform);
 
 /**
  * @brief Execute a transformation pipeline on input data
@@ -103,13 +103,13 @@ bool nlink_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn t
  * @param data Input data
  * @return Result of applying all transformations
  */
-void* nlink_pipeline_execute(nlink_transform_pipeline* pipeline, void* data);
+void* nlink_transform_pipeline_execute(nlink_transform_pipeline* pipeline, void* data);
 
 /**
  * @brief Free resources associated with a pipeline
  *
  * @param pipeline Pipeline to free
  */
-void nlink_pipeline_free(nlink_transform_pipeline* pipeline);
+void nlink_transform_pipeline_free(nlink_transform_pipeline* pipeline);
 
 #endif /* NLINK_TACTIC_COMPOSITION_H */

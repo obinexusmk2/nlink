@@ -15,11 +15,11 @@ typedef struct {
 } ComposedStageContext;
 
 // Implementation of composed stage execution
-static NexusResult composed_stage_execute(NexusContext* ctx, NexusBuffer* buffer, void* state) {
+static nexus_result composed_stage_execute(NexusContext* ctx, NexusBuffer* buffer, void* state) {
     ComposedStageContext* composed = (ComposedStageContext*)state;
-    
+
     // Execute first stage
-    NexusResult result = composed->first(ctx, buffer);
+    nexus_result result = composed->first(ctx, buffer);
     if (result.status != NEXUS_STATUS_SUCCESS) {
         return result;
     }
@@ -41,11 +41,11 @@ typedef struct {
 } FoldedStageContext;
 
 // Implementation of folded stage execution
-static NexusResult folded_stage_execute(NexusContext* ctx, NexusBuffer* buffer, void* state) {
+static nexus_result folded_stage_execute(NexusContext* ctx, NexusBuffer* buffer, void* state) {
     FoldedStageContext* folded = (FoldedStageContext*)state;
-    
+
     for (size_t i = 0; i < folded->count; i++) {
-        NexusResult result = folded->stages[i](ctx, buffer);
+        nexus_result result = folded->stages[i](ctx, buffer);
         if (result.status != NEXUS_STATUS_SUCCESS) {
             return result;
         }
@@ -129,12 +129,7 @@ NexusResult execute_stateful_stage(
     NexusBuffer* buffer
 ) {
     if (stage == NULL || stage->execute == NULL) {
-        nexus_error* error = nexus_error_create(
-            NEXUS_ERROR_INVALID_ARGUMENT,
-            "Invalid stateful stage",
-            __FILE__, __LINE__
-        );
-        return nexus_error_result(error, NULL);
+        return NEXUS_INVALID_PARAMETER;
     }
     
     return stage->execute(ctx, buffer, stage->internal_state);

@@ -13,11 +13,10 @@ target_include_directories(nlink_pattern
 		${CMAKE_SOURCE_DIR}/include
 )
 
-# Link with system libraries (needed for regex functions)
-target_link_libraries(nlink_pattern
-	PRIVATE
-		m  # Math library
-)
+# Link with system libraries (needed for regex functions, POSIX only)
+if(NOT WIN32)
+  target_link_libraries(nlink_pattern PRIVATE m)
+endif()
 
 # Set properties on the target library
 set_target_properties(nlink_pattern PROPERTIES

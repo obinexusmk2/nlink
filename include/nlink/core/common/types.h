@@ -124,7 +124,9 @@
          NEXUS_COMPONENT_NOT_INITIALIZED = 2001, /**< Component not initialized */
          NEXUS_SYMBOL_NOT_FOUND = 2002,          /**< Symbol not found in component */
          NEXUS_COMPONENT_LOAD_FAILED = 2003,     /**< Component failed to load */
-         NEXUS_DUPLICATE_COMPONENT = 2004        /**< Component already registered */
+         NEXUS_DUPLICATE_COMPONENT = 2004,       /**< Component already registered */
+        NEXUS_INVALID_CONFIGURATION = 2005,     /**< Configuration is invalid */
+        NEXUS_NOT_IMPLEMENTED = 2006            /**< Feature not implemented */
      } NexusResult;
 
      /** Alias used by the error/exception subsystem */

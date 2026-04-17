@@ -7,8 +7,9 @@ set(SYMBOLS_SOURCES
     cold_symbol.c
 )
 
-# Create the symbols library
-add_library(nexus_symbols OBJECT ${SYMBOLS_SOURCES})
+# Create the symbols library (static so it can be linked into nlink_core_static)
+add_library(nexus_symbols STATIC ${SYMBOLS_SOURCES})
+add_library(nlink_symbols ALIAS nexus_symbols)
 
 # Set properties for the library
 set_target_properties(nexus_symbols PROPERTIES

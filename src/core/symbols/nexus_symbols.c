@@ -248,3 +248,13 @@
      // Free the registry
      free(registry);
  }
+
+/* Context-aware initialize/cleanup wrappers called by nlink.c */
+NexusResult nexus_symbol_registry_initialize(NexusContext* ctx) {
+    (void)ctx;
+    return NEXUS_SUCCESS;
+}
+
+void nexus_symbol_registry_cleanup(NexusContext* ctx) {
+    (void)ctx;
+}

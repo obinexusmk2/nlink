@@ -39,14 +39,14 @@
  static NexusResult stats_command_handler(NexusContext* ctx);
  
  // Basic command definitions
- static NexusCommand help_command = {
+ NexusCommand help_command = {
      .name = "help",
      .description = "Display help information",
      .handler = help_command_handler,
      .handler_with_params = NULL
  };
- 
- static NexusCommand list_command = {
+
+ NexusCommand list_command = {
      .name = "list",
      .description = "List available components",
      .handler = list_command_handler,

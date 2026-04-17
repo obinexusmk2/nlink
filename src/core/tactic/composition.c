@@ -108,7 +108,7 @@ void* nlink_identity(void* data, void* context) {
     return data;    // Simply return the input unchanged
 }
 
-nlink_transform_pipeline* nlink_pipeline_create(size_t initial_capacity, void* context) {
+nlink_transform_pipeline* nlink_transform_pipeline_create(size_t initial_capacity, void* context) {
     if (initial_capacity == 0) {
         initial_capacity = 4;  // Default to a small initial capacity
     }
@@ -132,7 +132,7 @@ nlink_transform_pipeline* nlink_pipeline_create(size_t initial_capacity, void* c
     return pipeline;
 }
 
-bool nlink_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn transform) {
+bool nlink_transform_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn transform) {
     if (pipeline == NULL || transform == NULL) {
         return false;
     }
@@ -146,7 +146,7 @@ bool nlink_pipeline_add(nlink_transform_pipeline* pipeline, nlink_transform_fn t
     return true;
 }
 
-void* nlink_pipeline_execute(nlink_transform_pipeline* pipeline, void* data) {
+void* nlink_transform_pipeline_execute(nlink_transform_pipeline* pipeline, void* data) {
     if (pipeline == NULL) {
         return data;
     }
@@ -154,7 +154,7 @@ void* nlink_pipeline_execute(nlink_transform_pipeline* pipeline, void* data) {
     return nlink_compose(data, pipeline->transforms, pipeline->count, pipeline->context);
 }
 
-void nlink_pipeline_free(nlink_transform_pipeline* pipeline) {
+void nlink_transform_pipeline_free(nlink_transform_pipeline* pipeline) {
     if (pipeline == NULL) {
         return;
     }

@@ -5,18 +5,24 @@
  * Copyright © 2025 OBINexus Computing
  */
 
- #include "nlink/core/pipeline/pipeline_detector.h"
+ #include "nlink/core/pipeline/pipeline_detect.h"
  #include "nlink/core/minimizer/nexus_minimizer.h"
  #include "nlink/core/minimizer/okpala_automaton.h"
- #include "nlink/spsystem/sps_config.h"
- #include "nlink/spsystem/sps_dependency.h"
- #include "nlink/mpsystem/mps_config.h"
- #include "nlink/mpsystem/mps_dependency.h"
+
+ /* Forward declaration for metrics printer defined in minimizer.c */
+ void nexus_print_minimization_metrics(const NexusMinimizationMetrics* metrics);
+ #include "nlink/core/spsystem/sps_config.h"
+ #include "nlink/core/spsystem/sps_dependency.h"
+ #include "nlink/core/mpsystem/mps_config.h"
+ #include "nlink/core/mpsystem/mps_dependency.h"
  #include <stdio.h>
  #include <stdlib.h>
  #include <string.h>
  #include <time.h>
  #include <sys/stat.h>
+ #ifdef _WIN32
+ #  include <windows.h>
+ #endif
  
  /* Internal structure for pipeline detector state */
  typedef struct PipelineDetectorContext {
@@ -44,9 +50,16 @@
  
  /* Helper function to measure time */
  static double get_current_time_ms(void) {
+ #ifdef _WIN32
+     LARGE_INTEGER freq, count;
+     QueryPerformanceFrequency(&freq);
+     QueryPerformanceCounter(&count);
+     return (double)(count.QuadPart * 1000.0) / (double)freq.QuadPart;
+ #else
      struct timespec ts;
      clock_gettime(CLOCK_MONOTONIC, &ts);
      return (ts.tv_sec * 1000.0) + (ts.tv_nsec / 1000000.0);
+ #endif
  }
  
  /* Helper function to check for multi-pass characteristics */
@@ -193,7 +206,7 @@
      // Check if detector is initialized
      if (!g_detector_ctx || !g_detector_ctx->initialized) {
          nexus_log(ctx, NEXUS_LOG_ERROR, "Pipeline detector not initialized");
-         return NEXUS_ERROR_NOT_INITIALIZED;
+         return NEXUS_NOT_INITIALIZED;
      }
      
      nexus_log(ctx, NEXUS_LOG_INFO, "Detecting pipeline type for: %s", component_path);
@@ -201,7 +214,7 @@
      // Check if file exists
      if (!file_exists(component_path)) {
          nexus_log(ctx, NEXUS_LOG_ERROR, "Component file not found: %s", component_path);
-         return NEXUS_FILE_NOT_FOUND;
+         return NEXUS_ERROR_FILE_NOT_FOUND;
      }
      
      // Allocate detection result
@@ -273,13 +286,13 @@
      // Check if detector is initialized
      if (!g_detector_ctx || !g_detector_ctx->initialized) {
          nexus_log(ctx, NEXUS_LOG_ERROR, "Pipeline detector not initialized");
-         return NEXUS_ERROR_NOT_INITIALIZED;
+         return NEXUS_NOT_INITIALIZED;
      }
      
      // Skip unknown pipeline types
      if (result->detected_type == NEXUS_PIPELINE_TYPE_UNKNOWN) {
          nexus_log(ctx, NEXUS_LOG_WARNING, "Cannot optimize unknown pipeline type");
-         return NEXUS_ERROR_INVALID_PIPELINE;
+         return NEXUS_INVALID_PARAMETER;
      }
      
      nexus_log(ctx, NEXUS_LOG_INFO, "Optimizing %s pipeline: %s",

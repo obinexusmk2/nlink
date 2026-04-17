@@ -61,23 +61,6 @@
  } NlinkCommandRouter;
 
  /**
- * @brief Register a command with parameter mapping
- * @param router Command router
- * @param pattern Command pattern
- * @param command Command to execute
- * @param flags Pattern matching flags
- * @param param_names Parameter names
- * @param param_count Parameter count
- * @return NexusResult status
- */
-NexusResult nlink_command_router_register_with_params(
-    struct NlinkCommandRouter* router,
-    const char* pattern,
-    NexusCommand* command,
-    NlinkPatternFlags flags,
-    const char** param_names,
-    size_t param_count);
- /**
   * @brief Initialize a CLI command registry
   * @param registry Pointer to registry to initialize
   * @return true on success, false on failure
@@ -157,11 +140,6 @@ NexusResult nlink_command_router_register_with_params(
      NlinkPatternFlags flags,
      const char** param_names,
      size_t param_count);
- /**
-  * @brief Parse command helper
-  */
- NexusCommand* parse_command(const char* name);
- 
  #ifdef __cplusplus
  }
  #endif

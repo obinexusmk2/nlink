@@ -5,7 +5,7 @@
  * Copyright © 2025 OBINexus Computing
  */
 
- #include "nlink/core/cpppass/pipeline_pass.h"
+ #include "nlink/core/pipeline/pipeline_pass.h"
  #include "nlink/core/common/nexus_core.h"
  #include <stdlib.h>
  #include <string.h>

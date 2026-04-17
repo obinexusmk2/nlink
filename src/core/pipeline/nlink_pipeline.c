@@ -11,6 +11,22 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef _WIN32
+#  include <windows.h>
+static double nlink_get_time_ms(void) {
+    LARGE_INTEGER freq, count;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    return (double)(count.QuadPart * 1000.0) / (double)freq.QuadPart;
+}
+#else
+static double nlink_get_time_ms(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000.0 + ts.tv_nsec / 1000000.0;
+}
+#endif
+
 NlinkPipelineConfig nlink_pipeline_default_config(void) {
     NlinkPipelineConfig config;
     config.mode = NLINK_PIPELINE_MODE_AUTO;
@@ -227,7 +243,7 @@ NexusResult nlink_pipeline_execute(NlinkPipeline* pipeline, void* input, void* o
     
     NexusContext* ctx = pipeline->ctx;
     NexusResult result;
-    struct timespec start, end;
+    double start_ms, end_ms;
     
     /* Check if we have any stages */
     if (!pipeline->first_stage) {
@@ -246,7 +262,7 @@ NexusResult nlink_pipeline_execute(NlinkPipeline* pipeline, void* input, void* o
     }
     
     /* Start timing */
-    clock_gettime(CLOCK_MONOTONIC, &start);
+    start_ms = nlink_get_time_ms();
     
     /* Execute the pipeline based on the active mode */
     if (pipeline->active_mode == NLINK_PIPELINE_MODE_SINGLE_PASS) {
@@ -259,11 +275,10 @@ NexusResult nlink_pipeline_execute(NlinkPipeline* pipeline, void* input, void* o
     }
     
     /* End timing */
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    
+    end_ms = nlink_get_time_ms();
+
     /* Calculate execution time */
-    double time_ms = (end.tv_sec - start.tv_sec) * 1000.0 + 
-                    (end.tv_nsec - start.tv_nsec) / 1000000.0;
+    double time_ms = end_ms - start_ms;
     pipeline->last_execution_time_ms = time_ms;
     
     nexus_log(ctx, NEXUS_LOG_INFO, "Pipeline execution completed in %.2f ms with %u iteration(s)",

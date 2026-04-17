@@ -32,7 +32,7 @@
  /**
     * @brief Minimize command definition
     */
- static NexusCommand minimize_command = {
+ NexusCommand minimize_command = {
          .name = "minimize",
          .description = "Minimize a component using state machine minimization",
          .handler = NULL,

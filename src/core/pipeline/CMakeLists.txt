@@ -1,26 +1,37 @@
 # Pipeline component CMakeLists.txt
 
 # Define pipeline sources  (only files that exist on disk)
-# pipeline_executor.c / pipeline_optimizer.c / pipeline_registry.c /
-# pipeline_scheduler.c are not yet implemented; detector has its own target below.
 set(PIPELINE_SOURCES
     nlink_pipeline.c
     pipeline_pass.c
     pipeline_stage.c
 )
 
-# Define pipeline headers (only ship the header that exists)
+# Define pipeline headers
 set(PIPELINE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/nlink_pipeline.h
 )
 
-# Create pipeline library
-add_library(nexus_pipeline SHARED ${PIPELINE_SOURCES} ${PIPELINE_HEADERS})
+# Use STATIC on Windows (no .dll export machinery needed for static build)
+if(WIN32)
+  add_library(nexus_pipeline STATIC ${PIPELINE_SOURCES} ${PIPELINE_HEADERS})
+else()
+  add_library(nexus_pipeline SHARED ${PIPELINE_SOURCES} ${PIPELINE_HEADERS})
+  set_target_properties(nexus_pipeline PROPERTIES
+      VERSION ${PROJECT_VERSION}
+      SOVERSION ${PROJECT_VERSION_MAJOR}
+      C_VISIBILITY_PRESET hidden
+  )
+endif()
+
+# Alias so nlink_core_static INTERFACE can find this target
+add_library(nlink_pipeline ALIAS nexus_pipeline)
 
 # Setup include directories
 target_include_directories(nexus_pipeline
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src
 )
@@ -28,24 +39,20 @@ target_include_directories(nexus_pipeline
 # Add dependencies
 target_link_libraries(nexus_pipeline
     PUBLIC
-        nexus_common
+        nlink_common_static
     PRIVATE
-        nexus_minimizer
-        ${CMAKE_DL_LIBS}  # For dlopen/dlclose on Linux; empty on Windows
-        # pthread omitted: bare MinGW uses Win32 threads via Threads::Threads
+        $<$<TARGET_EXISTS:nlink_minimizer>:nlink_minimizer>
+        ${CMAKE_DL_LIBS}
 )
 
-# Set properties for shared library
+# Set properties
 set_target_properties(nexus_pipeline PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    C_VISIBILITY_PRESET hidden  # Hide internal symbols
     POSITION_INDEPENDENT_CODE ON
 )
 
 # Define preprocessor macros
 target_compile_definitions(nexus_pipeline PRIVATE
-    NLINK_BUILDING_PIPELINE_LIB  # For proper symbol export
+    NLINK_BUILDING_PIPELINE_LIB
 )
 
 # Install headers
@@ -54,70 +61,43 @@ install(FILES ${PIPELINE_HEADERS}
 
 # Install library
 install(TARGETS nexus_pipeline
-        EXPORT NexusLinkTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
+        EXPORT nlink-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-# Add to export targets
-export(TARGETS nexus_pipeline
-       APPEND FILE ${CMAKE_BINARY_DIR}/NexusLinkTargets.cmake)
-
-# Pipeline Detector module for NexusLink
-# Provides pipeline detection and automatic optimization functionality
-
-# Define source files for the pipeline detector module
+# Pipeline Detector module
 set(PIPELINE_DETECTOR_SOURCES
     pipeline_detector.c
 )
 
-# Define header files (for IDE integration)
 set(PIPELINE_DETECTOR_HEADERS
     ${CMAKE_SOURCE_DIR}/include/nlink/core/pipeline/pipeline_detect.h
 )
 
-# Create the pipeline detector library
-add_library(nexus_pipeline_detector ${PIPELINE_DETECTOR_SOURCES} ${PIPELINE_DETECTOR_HEADERS})
+add_library(nexus_pipeline_detector STATIC
+    ${PIPELINE_DETECTOR_SOURCES} ${PIPELINE_DETECTOR_HEADERS})
 
-# Set include directories
 target_include_directories(nexus_pipeline_detector
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_SOURCE_DIR}/src
 )
 
-# Add dependencies
 target_link_libraries(nexus_pipeline_detector
     PUBLIC
-        nexus_core
-        nexus_common
+        nlink_common_static
     PRIVATE
-        nexus_minimizer
         nexus_pipeline
-        nexus_spsystem
-        nexus_mpsystem
 )
 
-# Set compiler options
-target_compile_options(nexus_pipeline_detector PRIVATE
-    -Wall
-    -Wextra
-    $<$<CONFIG:Release>:-O3>
-    $<$<CONFIG:Debug>:-g>
-)
-
-# Install headers
 install(FILES ${PIPELINE_DETECTOR_HEADERS}
         DESTINATION include/nlink/core/pipeline)
 
-# Install library
 install(TARGETS nexus_pipeline_detector
-        EXPORT NexusLinkTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
-
-# Add to export targets
-export(TARGETS nexus_pipeline_detector
-       APPEND FILE ${CMAKE_BINARY_DIR}/NexusLinkTargets.cmake)
+        EXPORT nlink-targets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
