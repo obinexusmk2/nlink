@@ -7,7 +7,8 @@
       "Bash(make)",
       "Bash(powershell -Command \"\\(Get-Content 'C:\\\\Users\\\\OBINexus\\\\Repos\\\\nlink\\\\src\\\\core\\\\pipeline\\\\pipeline_detector.c'\\) -replace '\\\\\"nlink/core/pipeline/pipeline_detector.h\\\\\"', '\\\\\"nlink/core/pipeline/pipeline_detect.h\\\\\"' | Set-Content 'C:\\\\Users\\\\OBINexus\\\\Repos\\\\nlink\\\\src\\\\core\\\\pipeline\\\\pipeline_detector.c'\")",
       "Bash(grep -v \"^[0-9]*://\\\\|^[0-9]*: \\\\*\\\\|^[0-9]*: *$\")",
-      "Bash(\"C:/Users/OBINexus/Repos/nlink/build/windows/Debug/nlink.exe\" --version)"
+      "Bash(\"C:/Users/OBINexus/Repos/nlink/build/windows/Debug/nlink.exe\" --version)",
+      "Bash(make -C C:/Users/OBINexus/Repos/nlink)"
     ]
   }
 }

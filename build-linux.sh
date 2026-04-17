@@ -11,13 +11,13 @@
 #   bash build-linux.sh --no-test         # Skip test configuration
 set -euo pipefail
 
-# ── Defaults ─────────────────────────────────────────────────────────────────
+# ── Defaults ──────────────────────────────────────────────────────────────────
 CONFIG="Debug"
 CLEAN=0
 NO_BUILD=0
 NO_TEST=0
 
-# ── Argument parsing ─────────────────────────────────────────────────────────
+# ── Argument parsing ──────────────────────────────────────────────────────────
 for arg in "$@"; do
   case "$arg" in
     --release)   CONFIG="Release" ;;
@@ -38,13 +38,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/build/linux"
 BIN_PATH="$BUILD_DIR/bin/nlink"
 
-info()  { echo -e "\033[36m[nlink]\033[0m $*"; }
-fail()  { echo -e "\033[31mERROR:\033[0m $*" >&2; exit 1; }
+info()  { printf '\033[36m[nlink]\033[0m %s\n' "$*"; }
+fail()  { printf '\033[31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 
 # ── Dependency checks ─────────────────────────────────────────────────────────
-command -v cmake >/dev/null 2>&1 || fail "cmake not found. Install with: sudo apt install cmake"
-command -v cc    >/dev/null 2>&1 || \
-  command -v gcc >/dev/null 2>&1 || fail "C compiler (gcc/cc) not found. Install with: sudo apt install build-essential"
+command -v cmake >/dev/null 2>&1 || \
+  fail "cmake not found. Install with: sudo apt install cmake"
+command -v cc >/dev/null 2>&1 || command -v gcc >/dev/null 2>&1 || \
+  fail "C compiler (gcc/cc) not found. Install with: sudo apt install build-essential"
 
 # ── Optional clean ────────────────────────────────────────────────────────────
 if [ "$CLEAN" -eq 1 ] && [ -d "$BUILD_DIR" ]; then
@@ -53,7 +54,7 @@ if [ "$CLEAN" -eq 1 ] && [ -d "$BUILD_DIR" ]; then
 fi
 
 # ── Configure ─────────────────────────────────────────────────────────────────
-info "Configuring (config=$CONFIG) ..."
+info "Configuring ($CONFIG) ..."
 TEST_FLAG="ON"
 [ "$NO_TEST" -eq 1 ] && TEST_FLAG="OFF"
 
@@ -74,6 +75,8 @@ fi
 if [ -f "$BIN_PATH" ]; then
   info "Build succeeded."
   info "Binary: $BIN_PATH"
+  info "Run:    $BIN_PATH --help"
 else
-  echo "WARNING: Build finished but nlink was not found at $BIN_PATH — check $BUILD_DIR/bin/" >&2
+  printf 'WARNING: Build finished but nlink was not found at expected path.\n' >&2
+  printf 'Check: %s/bin/\n' "$BUILD_DIR" >&2
 fi

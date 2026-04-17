@@ -233,4 +233,13 @@ function(nlink_define_main_executable)
   if(EXE_DEPENDENCIES)
     target_link_libraries(${EXE_NAME} PRIVATE ${EXE_DEPENDENCIES})
   endif()
+
+  # Force the executable into bin/ regardless of build configuration (Debug/Release/etc.)
+  # Without this, MSVC places the binary in bin/Debug/ or bin/Release/ sub-folders,
+  # which diverges from the Makefile's expected path of ${CMAKE_BINARY_DIR}/bin/nlink.exe.
+  set_target_properties(${EXE_NAME} PROPERTIES
+      RUNTIME_OUTPUT_DIRECTORY         "${NLINK_BIN_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${NLINK_BIN_DIR}"
+      RUNTIME_OUTPUT_DIRECTORY_RELEASE "${NLINK_BIN_DIR}"
+  )
 endfunction()
